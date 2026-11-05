@@ -55,7 +55,7 @@ hosts/      imac18-3 (kernel args, BT rescue, DKMS audio, 5K outputs)
 | environment | `~/.config/environment.d` |
 | systemd-user | `~/.config/systemd/user` |
 | scripts | `~/.local/bin` (niri-zoom helpers, dms-cursor-adapt, …) |
-| desktop-tools | `~/.config/satty`, `~/.config/emoji-picker` |
+| desktop-tools | `~/.config/emoji-picker` |
 
 ## 🛠 Notes
 

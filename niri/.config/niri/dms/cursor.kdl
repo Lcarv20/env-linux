@@ -4,6 +4,6 @@
 // ! PLACE YOUR CUSTOM CONFIGURATION ELSEWHERE !
 
 cursor {
-    xcursor-theme "Bibata-Material-Blush"
+    xcursor-theme "Bibata-Material-Deep-Blue"
     xcursor-size 32
 }

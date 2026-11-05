@@ -177,6 +177,9 @@ environment {
   XDG_CURRENT_DESKTOP "niri"
   // dux-files: use the customized UI copy (bigger picker + "Dux Chooser" title prefix)
   DFILES_SHELL_DIR "/home/lcarv/.config/dfiles-shell"
+  // built-in DMS screenshot UI (Control Center / `dms screenshot`): hand the captured
+  // file to Quick Capture's annotator instead of satty (NiriService.qml %path% hook)
+  DMS_SCREENSHOT_EDITOR "dms ipc call quickCapture openImage %path% edit"
   QT_QPA_PLATFORM "wayland;xcb"
   ELECTRON_OZONE_PLATFORM_HINT "auto"
   QT_QPA_PLATFORMTHEME "gtk3"
@@ -254,8 +257,6 @@ window-rule {
     match app-id=r#"^blueman-manager$"#
     match app-id=r#"^xdg-desktop-portal$"#
     match app-id=r#"^xdg-desktop-portal-gtk$"#
-    match app-id=r#"^com\.gabm\.satty$"#
-    match app-id=r#"^satty$"#
     open-floating true
 }
 window-rule {

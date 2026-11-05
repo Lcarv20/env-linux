@@ -18,7 +18,6 @@ acl
 
 # --- Graphical apps & helpers ---
 ghostty
-satty
 wtype
 wl-clipboard
 cliphist

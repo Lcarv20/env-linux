@@ -23,9 +23,9 @@
   "dankCursorAdapt": {
     "enabled": true,
     "lastApplied": {
-      "theme": "Bibata-Material-Blush",
+      "theme": "Bibata-Material-Deep-Blue",
       "mode": "dark",
-      "accent": "#ffb4aa"
+      "accent": "#4dd8e7"
     },
     "invertSets": false
   },
@@ -34,5 +34,21 @@
   },
   "dankSoftwareDepot": {
     "enabled": true
+  },
+  "quickCapture": {
+    "enabled": true,
+    "editQuality": "450000",
+    "modalScaleToContent": true
+  },
+  "dankNotepadModule": {
+    "enabled": true
+  },
+  "screenCaptureToolbar": {
+    "enabled": true,
+    "stdout": false,
+    "captureMode": "monitor",
+    "mediaMode": "photo",
+    "isVideoMode": false,
+    "saveToDisk": false
   }
 }

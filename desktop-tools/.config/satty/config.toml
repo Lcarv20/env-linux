@@ -1,9 +1,0 @@
-[general]
-# Copy to clipboard and save on Ctrl+C / Enter
-copy-command = "wl-copy"
-early-exit = true
-initial-tool = "arrow"
-annotation-size-factor = 1.0
-save-after-copy = false
-default-hide-toolbars = false
-corner-roundness = 12

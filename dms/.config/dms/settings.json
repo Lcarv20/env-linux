@@ -87,7 +87,7 @@
       "leftWidgets": [
         {
           "id": "launcherButton",
-          "enabled": true,
+          "enabled": false,
           "launcherLogoMode": "apps"
         },
         {
@@ -106,7 +106,7 @@
         },
         {
           "id": "focusedWindow",
-          "enabled": true,
+          "enabled": false,
           "focusedWindowCompactMode": false,
           "focusedWindowShowIcon": true,
           "focusedWindowSize": 1
@@ -241,10 +241,11 @@
       "islandSatelliteBackground": false,
       "islandSatelliteGothCorners": false,
       "islandSatellitesEnabled": true,
-      "maximizeWidgetIcons": false,
-      "maximizeWidgetText": false,
+      "maximizeWidgetIcons": true,
+      "maximizeWidgetText": true,
       "widgetOutlineEnabled": false,
-      "widgetOutlineColor": "primary"
+      "widgetOutlineColor": "primary",
+      "widgetPadding": 8
     },
     {
       "id": "dot1793574312245",
