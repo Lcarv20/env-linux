@@ -1,0 +1,18 @@
+{
+  "close_on_select": true,
+  "columns": 9,
+  "emoji_size": 28,
+  "favorites": [],
+  "gender": "",
+  "insert_method": "auto",
+  "kaomoji": false,
+  "language": "en",
+  "max_recent": 36,
+  "paste_shortcut": "auto",
+  "remember_position": false,
+  "skin_tone": "",
+  "theme": "auto",
+  "window_height": 480,
+  "window_position": null,
+  "window_width": 460
+}

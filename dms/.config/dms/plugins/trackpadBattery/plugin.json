@@ -1,0 +1,19 @@
+{
+  "id": "trackpadBattery",
+  "name": "Peripheral Batteries",
+  "description": "Displays battery levels for all connected Bluetooth and wireless peripherals",
+  "version": "1.1.0",
+  "license": "MIT",
+  "author": "Antigravity",
+  "icon": "devices",
+  "type": "widget",
+  "capabilities": [
+    "dankbar-widget",
+    "control-center"
+  ],
+  "component": "./TrackpadBatteryWidget.qml",
+  "requires_dms": ">=2.0.0",
+  "permissions": [
+    "settings_read"
+  ]
+}

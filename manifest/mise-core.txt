@@ -1,0 +1,12 @@
+# Core CLI tools managed via mise — installed by stages/10-desktop-base.sh.
+lsd
+lazygit
+fzf
+starship
+zoxide
+bat
+direnv
+neovim
+delta
+rg
+gh

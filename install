@@ -1,0 +1,272 @@
+#!/bin/bash
+# dots-linux installer — modular Fedora Server → Niri + Dux Shell desktop.
+#
+#   ./install [--dry-run] [--yes] [--profile=minimal|full|custom]
+#             [--host=auto|imac18-3|vm|none] [--with-extras] [--with-mango]
+#
+# Stages live in ./stages (numbered, executed in order), package lists in
+# ./manifest, host quirks in ./hosts. Everything logs to ./setup.log.
+set -euo pipefail
+
+DOTS="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+source "$DOTS/stages/lib.sh"
+
+# ------------------------------------------------------------------ usage ----
+show_help() {
+    cat <<'EOF'
+dots-linux installer — Fedora Server/Minimal → Niri + Dux Shell
+
+Usage:
+  ./install [OPTIONS]
+
+Options:
+  -h, --help            Show this help and exit.
+  --dry-run             Print every action without executing anything.
+  --yes                 Non-interactive: accept defaults, never prompt.
+  --profile=PROFILE     minimal : complete desktop (repos, packages, assets,
+                                 dotfiles, services, hardware) — no extras.
+                        full    : everything in minimal + extras (Chrome,
+                                  language runtimes, Flathub, udev rules).
+                        custom  : pick stages interactively.
+  --host=HOST           auto (default) | imac18-3 | vm | none
+                        auto detects via DMI product name + systemd-detect-virt.
+  --with-extras         Add the extras stage (60) to any profile.
+  --with-mango          Also stow the 'mango' package (stages 40 & 60).
+
+Examples:
+  ./install                          # interactive TUI
+  ./install --dry-run                # full rehearsal, zero changes
+  ./install --yes --profile=full     # unattended, everything
+  ./install --host=vm --profile=minimal
+
+Stages:
+  00-repos        RPM Fusion, Terra, COPRs
+  10-desktop-base dnf core packages, mise, zsh login shell
+  20-niri-dms     verify Niri/DMS stack, remove legacy ~/.local/bin strays
+  30-assets       wallpapers, icons, fonts, dfiles-shell (+patches), bin
+  40-dotfiles     stow --no-folding all core packages, GTK/X cursor settings
+  50-services     chrome policy dir, greetd, display managers, user units
+  60-extras       Chrome repo, mise runtimes, Flathub, Keychron udev (extras)
+  90-hardware     host quirks (imac18-3 or vm) — auto-skipped otherwise
+EOF
+}
+
+# ------------------------------------------------------------------ args -----
+DRY_RUN=false
+ASSUME_YES=false
+PROFILE=""
+HOST_FLAG="auto"
+WITH_EXTRAS=false
+WITH_MANGO=false
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -h|--help)         show_help; exit 0 ;;
+        --dry-run)         DRY_RUN=true; shift ;;
+        -y|--yes)          ASSUME_YES=true; shift ;;
+        --profile=*)       PROFILE="${1#*=}"; shift ;;
+        --host=*)          HOST_FLAG="${1#*=}"; shift ;;
+        --with-extras)     WITH_EXTRAS=true; shift ;;
+        --with-mango)      WITH_MANGO=true; shift ;;
+        *) ui_error "Unknown option: $1 (see --help)"; exit 1 ;;
+    esac
+done
+
+case "$PROFILE" in
+    ""|minimal|full|custom) ;;
+    *) ui_error "--profile must be minimal, full or custom (got: $PROFILE)"; exit 1 ;;
+esac
+case "$HOST_FLAG" in
+    auto|imac18-3|vm|none) ;;
+    *) ui_error "--host must be auto, imac18-3, vm or none (got: $HOST_FLAG)"; exit 1 ;;
+esac
+
+if (( EUID == 0 )); then
+    ui_error "Run ./install as your normal user — stages call sudo only where needed."
+    exit 1
+fi
+
+# Fresh log for every run (setup.log is gitignored).
+: > "$LOG_FILE"
+
+# --------------------------------------------------------------- detect ------
+DMI_PRODUCT="(unknown)"
+[[ -r /sys/devices/virtual/dmi/id/product_name ]] && DMI_PRODUCT="$(</sys/devices/virtual/dmi/id/product_name)"
+VIRT="$(systemd-detect-virt 2>/dev/null || true)"
+DETECTED_HOST="$(detect_host_profile)"
+
+if [[ "$HOST_FLAG" == "auto" ]]; then
+    HOST_PROFILE="$DETECTED_HOST"
+else
+    HOST_PROFILE="$HOST_FLAG"
+    [[ "$HOST_PROFILE" == "$DETECTED_HOST" ]] \
+        || ui_warn "--host=$HOST_PROFILE overrides detected hardware ($DETECTED_HOST)."
+fi
+
+# ----------------------------------------------------------- gum bootstrap ---
+if ! have gum && ! is_dry_run; then
+    ui_warn "gum not found — bootstrapping via dnf (needs sudo)…"
+    if sudo dnf install -y gum; then
+        GUM_BIN="$(command -v gum 2>/dev/null || true)"
+        ui_step "gum bootstrapped"
+    else
+        ui_warn "gum bootstrap failed — continuing with pure-bash UI fallback."
+    fi
+elif ! have gum && is_dry_run; then
+    ui_info "dry-run: not bootstrapping gum; pure-bash UI fallback in effect."
+fi
+
+# ---------------------------------------------------------------- banner -----
+if [[ -n "$GUM_BIN" && -t 1 ]]; then
+    gum style --foreground 212 --border-foreground 212 --border double \
+        --padding '1 4' --margin '0 1' --align center --bold \
+        "dots-linux" "Fedora → Niri + Dux Shell"
+else
+    printf '\n%s%s%s\n' "$C_BLD$C_MAG" "══════════════════════════════════════" "$C_RST"
+    printf '  %sdots-linux%s — Fedora → Niri + Dux Shell\n' "$C_BLD" "$C_RST"
+    printf '%s%s%s\n\n' "$C_BLD$C_MAG" "══════════════════════════════════════" "$C_RST"
+fi
+
+ui_info "Hardware : ${DMI_PRODUCT} (virt: ${VIRT:-none})"
+ui_info "Host     : $HOST_PROFILE (detection said: $DETECTED_HOST)"
+
+# ---------------------------------------------------------------- stages -----
+mapfile -t ALL_STAGES < <(cd "$DOTS/stages" && ls [0-9]*.sh 2>/dev/null | sort)
+((${#ALL_STAGES[@]} > 0)) || { ui_error "no stage scripts found in $DOTS/stages"; exit 1; }
+
+# Profile presets (stage filenames).
+stages_minimal=("00-repos.sh" "10-desktop-base.sh" "20-niri-dms.sh" "30-assets.sh"
+                "40-dotfiles.sh" "50-services.sh" "90-hardware.sh")
+stages_full=("00-repos.sh" "10-desktop-base.sh" "20-niri-dms.sh" "30-assets.sh"
+             "40-dotfiles.sh" "50-services.sh" "60-extras.sh" "90-hardware.sh")
+
+if [[ -z "$PROFILE" ]]; then
+    if [[ "$ASSUME_YES" == "true" ]]; then
+        PROFILE="minimal"
+        ui_info "Profile  : minimal (--yes default; use --profile= to change)"
+    else
+        PROFILE="$(ui_choose "Installation profile" \
+            "minimal — complete desktop, no extras" \
+            "full — everything incl. extras" \
+            "custom — hand-pick stages")" || { ui_info "Aborted."; exit 0; }
+        PROFILE="${PROFILE%% —*}"
+    fi
+fi
+
+case "$PROFILE" in
+    minimal) RUN_STAGES=("${stages_minimal[@]}") ;;
+    full)    RUN_STAGES=("${stages_full[@]}"); WITH_EXTRAS=true ;;
+    custom)
+        if [[ "$ASSUME_YES" == "true" ]]; then
+            ui_warn "--yes with custom profile is ambiguous — falling back to minimal."
+            RUN_STAGES=("${stages_minimal[@]}")
+        else
+            picks="$(ui_choose_multi "Select stages to run (in listed order)" "${ALL_STAGES[@]}")" \
+                || { ui_info "Aborted."; exit 0; }
+            RUN_STAGES=()
+            for s in "${ALL_STAGES[@]}"; do       # keep canonical order
+                grep -qx "$s" <<<"$picks" && RUN_STAGES+=("$s")
+            done
+            ((${#RUN_STAGES[@]} > 0)) || { ui_error "No stages selected."; exit 1; }
+        fi
+        ;;
+esac
+
+# --with-extras: make sure stage 60 is in the run list.
+if [[ "$WITH_EXTRAS" == "true" ]] && ! printf '%s\n' "${RUN_STAGES[@]}" | grep -q '^60-extras'; then
+    RUN_STAGES+=("60-extras.sh")
+fi
+# Selecting 60 by hand implies extras.
+printf '%s\n' "${RUN_STAGES[@]}" | grep -q '^60-extras' && WITH_EXTRAS=true
+
+# Only keep stages that actually exist in the repo.
+FINAL_STAGES=()
+for s in "${RUN_STAGES[@]}"; do
+    [[ -f "$DOTS/stages/$s" ]] && FINAL_STAGES+=("$s")
+done
+((${#FINAL_STAGES[@]} > 0)) || { ui_error "No runnable stages selected."; exit 1; }
+RUN_STAGES=("${FINAL_STAGES[@]}")
+
+# --------------------------------------------------------------- summary -----
+summary_box() { # summary_box TITLE COLOR rest-of-lines-on-stdin
+    local title="$1" color="$2" line
+    if [[ -n "$GUM_BIN" && -t 1 ]]; then
+        local -a lines=()
+        while IFS= read -r line; do lines+=("$line"); done
+        gum style --border rounded --border-foreground "$color" --padding '0 2' \
+            --margin '1 0' "$title" "${lines[@]}"
+    else
+        printf '\n  %s\n' "$title"
+        while IFS= read -r line; do printf '  %s\n' "$line"; done
+    fi
+}
+
+{
+    echo "Hardware · ${DMI_PRODUCT} (virt: ${VIRT:-none})"
+    echo "Host ····· $HOST_PROFILE"
+    echo "Profile ·· $PROFILE"
+    echo "Extras ··· $WITH_EXTRAS    Mango · $WITH_MANGO"
+    echo "Dry run ·· $DRY_RUN"
+    echo "Stages ··· ${RUN_STAGES[*]}"
+} | summary_box "◆ Installation plan" 39
+
+if ! ui_confirm "Proceed with this plan?"; then
+    ui_info "Aborted — nothing was changed."
+    exit 0
+fi
+
+# ---------------------------------------------------------------- run --------
+export DRY_RUN HOST_PROFILE WITH_EXTRAS WITH_MANGO PROFILE LOG_FILE ASSUME_YES
+log INFO "=== install start: profile=$PROFILE host=$HOST_PROFILE dry-run=$DRY_RUN extras=$WITH_EXTRAS mango=$WITH_MANGO ==="
+
+declare -a OK_STAGES=()
+declare -a FAIL_STAGES=()
+FAILED=false
+
+for stage in "${RUN_STAGES[@]}"; do
+    ui_header "▶ $stage"
+    if bash "$DOTS/stages/$stage"; then
+        OK_STAGES+=("$stage")
+    else
+        FAIL_STAGES+=("$stage")
+        FAILED=true
+        ui_error "Stage $stage FAILED — stopping (nothing after it was run)."
+        break
+    fi
+done
+
+# --------------------------------------------------------------- summary -----
+log INFO "=== install end: ok=[${OK_STAGES[*]-}] fail=[${FAIL_STAGES[*]-}] ==="
+
+status_line() { # status_line STAGE_FILE
+    local s found=false
+    for s in "${OK_STAGES[@]}"; do
+        [[ "$s" == "$1" ]] && { found=true; break; }
+    done
+    if [[ "$found" == true ]]; then
+        printf '   ✔ %s\n' "$1"
+    else
+        printf '   ✖ %s\n' "$1"
+    fi
+}
+
+{
+    for s in "${RUN_STAGES[@]}"; do status_line "$s"; done
+    echo "──────────────────────────────────────────────"
+    echo "Log · $LOG_FILE"
+    if [[ "$FAILED" == true ]]; then
+        echo "Fix the failure above, then re-run ./install (stages are idempotent)."
+    else
+        echo "Next steps:"
+        echo "  • reboot — greetd (dms-greeter → niri) takes over from the console"
+        [[ "$HOST_PROFILE" == "imac18-3" ]] && \
+        echo "  • iMac18,3: kernel args + DKMS audio need the reboot too"
+        echo "  • log back in to pick up zsh + systemd --user units (dms, dfiles…)"
+    fi
+} | summary_box "$([[ "$FAILED" == true ]] && echo '◆ Finished — with failures' || echo '◆ Finished — all stages OK')" \
+      "$([[ "$FAILED" == true ]] && echo 203 || echo 46)"
+
+if [[ "$FAILED" == "true" ]]; then
+    exit 1
+fi
+exit 0

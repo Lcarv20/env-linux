@@ -1,0 +1,10 @@
+# Language runtimes & dev tools via mise — installed by stages/60-extras.sh.
+bun
+node
+go
+rust
+pnpm
+lua
+deno
+prettier
+lua-language-server

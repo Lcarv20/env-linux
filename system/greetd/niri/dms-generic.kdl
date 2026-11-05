@@ -1,0 +1,28 @@
+# dms.kdl (generic / VM variant)
+# Same as dms-imac18-3.kdl but WITHOUT the hardcoded eDP-1 5K scale block —
+# Niri auto-detects outputs. Cursor size 32 (default).
+input {
+    keyboard {
+        xkb
+        numlock
+    }
+    trackpoint
+    mouse {
+        accel-speed 0.0
+    }
+    touchpad {
+        tap
+        accel-speed 0.0
+        natural-scroll
+        dwt
+    }
+}
+
+debug {
+    honor-xdg-activation-with-invalid-serial
+}
+
+cursor {
+    xcursor-theme "JuxCursor"
+    xcursor-size 32
+}

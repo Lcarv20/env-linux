@@ -1,0 +1,99 @@
+# Core packages: everything a naked Fedora Server / Minimal install needs
+# for a complete working Wayland + Niri + Dux Shell desktop.
+# One package per line. Lines starting with # and blank lines are ignored.
+
+# --- Niri + Dux Shell ---
+niri
+xwayland-satellite
+dms
+dms-cli
+dms-greeter
+dux-files
+danksearch
+dankcalendar
+quickshell
+matugen
+awww
+acl
+
+# --- Graphical apps & helpers ---
+ghostty
+satty
+wtype
+wl-clipboard
+cliphist
+
+# --- Login / greeter ---
+greetd
+greetd-selinux
+
+# --- Graphics (GL / Vulkan) ---
+mesa-dri-drivers
+mesa-vulkan-drivers
+mesa-va-drivers
+glx-utils
+vulkan-loader
+
+# --- Audio (PipeWire stack) ---
+pipewire
+pipewire-pulseaudio
+pipewire-alsa
+pipewire-jack-audio-connection-kit
+pipewire-utils
+wireplumber
+alsa-utils
+pavucontrol
+
+# --- Portals / XDG / desktop plumbing ---
+xdg-desktop-portal
+xdg-desktop-portal-gtk
+xdg-desktop-portal-gnome
+xdg-user-dirs
+xdg-utils
+polkit
+
+# --- Hardware / system services ---
+NetworkManager
+NetworkManager-wifi
+bluez
+bluez-tools
+upower
+brightnessctl
+playerctl
+libnotify
+
+# --- Toolkits ---
+dconf
+glib2
+gtk3
+gtk4
+qt6-qtbase
+qt6-qtdeclarative
+qt6-qtwayland
+qt6-qtsvg
+
+# --- Fonts ---
+fontconfig
+google-noto-sans-fonts
+google-noto-emoji-fonts
+google-noto-color-emoji-fonts
+jetbrains-mono-fonts
+
+# --- Base CLI / build ---
+zsh
+stow
+git
+curl
+wget
+zstd
+tar
+unzip
+jq
+python3
+gcc
+make
+ncurses
+
+# --- Eye candy / installer UI ---
+fastfetch
+gum

@@ -1,0 +1,19 @@
+{
+  "id": "swwwSync",
+  "name": "Animated Wallpaper Bridge",
+  "description": "Automatically syncs Dux Shell wallpaper selections to swww for GIF animations",
+  "version": "1.0.0",
+  "author": "Antigravity",
+  "type": "daemon",
+  "capabilities": [
+    "wallpaper",
+    "daemon"
+  ],
+  "component": "./SwwwSyncDaemon.qml",
+  "icon": "wallpaper",
+  "requires_dms": ">=2.0.0",
+  "permissions": [
+    "settings_read",
+    "process"
+  ]
+}

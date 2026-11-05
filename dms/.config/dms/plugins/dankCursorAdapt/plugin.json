@@ -1,0 +1,18 @@
+{
+    "id": "dankCursorAdapt",
+    "name": "Dank Cursor Adapt",
+    "description": "Adaptive cursor that follows the DMS dynamic palette (dark/light set + accent color). Only active while the cursor theme is set to System Default.",
+    "version": "1.0.0",
+    "author": "lcarv",
+    "icon": "mouse",
+    "type": "daemon",
+    "capabilities": ["cursor", "theming"],
+    "component": "./DankCursorAdapt.qml",
+    "settings": "./DankCursorAdaptSettings.qml",
+    "requires_dms": ">=2.0.0",
+    "dependencies": [],
+    "permissions": [
+        "settings_read",
+        "settings_write"
+    ]
+}

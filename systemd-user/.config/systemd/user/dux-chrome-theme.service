@@ -1,0 +1,6 @@
+[Unit]
+Description=Apply Dux color to Chrome BrowserThemeColor
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/dux-chrome-theme

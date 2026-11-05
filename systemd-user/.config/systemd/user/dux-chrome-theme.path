@@ -1,0 +1,9 @@
+[Unit]
+Description=Watch Dux/Matugen colors to sync Chrome theme
+
+[Path]
+PathChanged=%h/.cache/dms/dms-colors.json
+Unit=dux-chrome-theme.service
+
+[Install]
+WantedBy=default.target

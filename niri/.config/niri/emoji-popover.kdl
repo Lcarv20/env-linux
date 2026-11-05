@@ -1,0 +1,18 @@
+// Emoji picker — MyGo port, resident daemon + layer-shell panel.
+//
+// The daemon starts hidden at niri startup. Super+Ctrl+Space spawns this
+// binary again with "toggle"; the second instance hands the argument to the
+// resident one (single-instance lock), which shows or hides the panel.
+//
+//   daemon:  spawn-at-startup "~/.local/bin/emoji-popover"
+//   toggle:  spawn "~/.local/bin/emoji-popover" "toggle"
+//   stop:    ~/.local/bin/emoji-popover quit
+binds {
+    Mod+Ctrl+Space hotkey-overlay-title="Emoji Picker" {
+        spawn "~/.local/bin/emoji-popover" "toggle";
+    }
+}
+
+// Resident daemon, hidden until toggled. If it ever dies, the next
+// keybind press silently becomes the daemon and shows the panel.
+spawn-at-startup "~/.local/bin/emoji-popover"

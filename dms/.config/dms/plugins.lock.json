@@ -1,0 +1,10 @@
+{
+  "lockfileVersion": 1,
+  "plugins": {
+    "dankDesktopWeather": {
+      "repo": "https://github.com/duxlabs-dev/dux-plugins",
+      "path": "DankDesktopWeather",
+      "commit": "be0b733a4036e0d1e5b3a1f11933569e61719be3"
+    }
+  }
+}

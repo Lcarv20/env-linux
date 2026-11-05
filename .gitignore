@@ -1,0 +1,6 @@
+# Logs
+*.log
+setup.log
+
+# System
+.DS_Store

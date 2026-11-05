@@ -1,0 +1,144 @@
+#!/bin/bash
+# bt-resume-rescue — keep Bluetooth input devices working across s2idle resumes.
+#
+# WHY THIS EXISTS (2026-11-03, iMac18,3 / Fedora 44):
+#   On resume (especially the FIRST suspend after boot, during the Alpine Ridge
+#   xHCI retry storm) the Keychron/Magic Trackpad reconnect events hit hci0
+#   mid-thaw. Kernel: "failed to register connection device" (duplicate conn
+#   sysfs), "ACL packet for unknown connection handle"; bluetoothd: "Refusing
+#   input device connect: Operation already in progress". Results range from
+#   one device missing for ~1 min to both input devices dead until the adapter
+#   is power-cycled. Seen on kernels 7.2.13 and 7.2.14 — intermittent race.
+#
+# MECHANISM: drop-in /etc/systemd/system/systemd-suspend.service.d/
+# bt-resume-rescue.conf wires this script into systemd-suspend.service:
+#   ExecStartPre  -> "snapshot": remember which BT devices were connected.
+#   ExecStartPost -> launches "rescue" DETACHED via systemd-run --no-block, so
+#     the suspend job (and logind's PrepareForSleep(false) resume signal that
+#     NetworkManager / dms / lock screen wait on) is NOT delayed by the grace
+#     period. Both lines use the "-" prefix: a missing/broken script can never
+#     abort a suspend.
+#
+# ESCALATION (v2, 2026-11-03):
+#   1. Wait 12 s for healthy reconnects.
+#   2. Device missing but NO wedge signature -> it was probably just switched
+#      off / taken away: only try a polite reconnect. No adapter churn.
+#   3. Wedge signature present (kernel or bluetoothd) -> power-cycle adapter,
+#      reconnect missing devices.
+#   4. Still broken AND wedged -> btusb rebind on USB 1-6 (iMac18,3 controller).
+#
+#   NOTE: this systemd only runs sleep hooks from /usr/lib/systemd/system-sleep
+#   — a /etc/systemd/system-sleep script silently does nothing here.
+#   Covers plain "suspend" (s2idle), which is what this machine uses.
+#
+# Journal tag: bt-resume-rescue
+
+TAG="bt-resume-rescue"
+STATE=/run/bt-resume-rescue.state
+BT_USB_PORT="1-6"   # Apple BT controller 05ac:8296 on iMac18,3
+
+bt_hid_nodes() { grep -c '^I: Bus=0005' /proc/bus/input/devices 2>/dev/null; }
+connected_macs() { bluetoothctl devices Connected 2>/dev/null | awk '{print $2}'; }
+
+missing_macs() { # prints pre-connected MACs that are not connected now
+    local m
+    [ -f "$STATE" ] || return 0
+    for m in $(grep -v '^nodes=' "$STATE" 2>/dev/null); do
+        connected_macs | grep -qi "^$m$" || echo "$m"
+    done
+}
+
+set_power() { # $1=true|false — applies to every hci adapter present
+    local h
+    for h in /sys/class/bluetooth/hci*; do
+        [ -d "$h" ] || continue
+        busctl --timeout=5s set-property org.bluez "/org/bluez/${h##*/}" \
+            org.bluez.Adapter1 Powered b "$1" >/dev/null 2>&1
+    done
+}
+
+reconnect() { timeout 8 bluetoothctl connect "$1" >/dev/null 2>&1; }
+
+wedge_signature_present() {
+    journalctl -k -b --no-pager --since '-4 min' 2>/dev/null | \
+        grep -qE 'failed to register connection device|ACL packet for unknown connection handle' && return 0
+    journalctl -u bluetooth -b --no-pager --since '-4 min' 2>/dev/null | \
+        grep -q 'Refusing input device connect'
+}
+
+healthy() { # $1 = expected node count
+    local nodes; nodes=$(bt_hid_nodes); nodes=${nodes:-0}
+    [ -z "$(missing_macs)" ] && [ "$nodes" -ge "$1" ]
+}
+
+case "${1:-}" in
+
+snapshot)
+    # ExecStartPre — runs immediately before the machine goes to sleep.
+    connected_macs | sort > "$STATE" 2>/dev/null
+    echo "nodes=$(bt_hid_nodes)" >> "$STATE" 2>/dev/null
+    logger -t "$TAG" "snapshot before sleep: $(tr '\n' ' ' < "$STATE" 2>/dev/null)"
+    exit 0
+    ;;
+
+rescue)
+    # Runs detached (transient unit) right after wake.
+    sleep 12   # give healthy reconnects time to land (trackpad can take ~8 s)
+
+    PRE_NODES=$(sed -n 's/^nodes=//p' "$STATE" 2>/dev/null); PRE_NODES=${PRE_NODES:-0}
+    NOW_NODES=$(bt_hid_nodes); NOW_NODES=${NOW_NODES:-0}
+    MISSING=$(missing_macs | tr '\n' ' ')
+    SIG=0; wedge_signature_present && SIG=1
+
+    logger -t "$TAG" "post-resume: nodes $PRE_NODES->$NOW_NODES, missing:${MISSING:- none}, wedge-sig=$SIG"
+
+    healthy "$PRE_NODES" && [ "$SIG" -eq 0 ] && exit 0
+
+    if [ "$SIG" -eq 0 ]; then
+        # No wedge evidence: device was most likely turned off. Be polite.
+        for m in $MISSING; do reconnect "$m"; done
+        sleep 3
+        if healthy "$PRE_NODES"; then
+            logger -t "$TAG" "missing device(s) reconnected without adapter reset"
+        else
+            logger -t "$TAG" "device(s) still absent, no wedge signature — assuming powered off; leaving adapter alone"
+        fi
+        exit 0
+    fi
+
+    logger -t "$TAG" "Bluetooth wedged after resume; power-cycling adapter"
+    set_power false; sleep 2; set_power true; sleep 8
+    for m in $MISSING; do reconnect "$m"; done
+    sleep 5
+    if healthy "$PRE_NODES"; then
+        logger -t "$TAG" "recovered after adapter power cycle"
+        exit 0
+    fi
+
+    logger -t "$TAG" "power cycle insufficient; rebinding btusb on USB $BT_USB_PORT"
+    STILL=$(missing_macs | tr '\n' ' ')
+    IFACES=""
+    for i in /sys/bus/usb/drivers/btusb/${BT_USB_PORT}:*; do
+        [ -e "$i" ] || continue
+        IFACES="$IFACES ${i##*/}"
+        echo "${i##*/}" > /sys/bus/usb/drivers/btusb/unbind 2>/dev/null
+    done
+    sleep 3
+    for i in $IFACES; do echo "$i" > /sys/bus/usb/drivers/btusb/bind 2>/dev/null; done
+    sleep 8
+    set_power true; sleep 3
+    for m in $STILL; do reconnect "$m"; done
+    sleep 5
+
+    if healthy "$PRE_NODES"; then
+        logger -t "$TAG" "recovered after btusb rebind"
+    else
+        FINAL_NODES=$(bt_hid_nodes)
+        logger -t "$TAG" "WARNING: still missing after rescue:$(missing_macs | tr '\n' ' ') (nodes $PRE_NODES->${FINAL_NODES:-0})"
+    fi
+    exit 0
+    ;;
+
+esac
+
+exit 0

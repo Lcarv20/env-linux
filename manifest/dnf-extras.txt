@@ -1,0 +1,7 @@
+# Extra (non-core) dnf packages — installed by stages/60-extras.sh.
+google-chrome-stable
+flatpak
+clang
+rust
+cargo
+golang

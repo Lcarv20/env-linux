@@ -1,0 +1,31 @@
+output "eDP-1" {
+    scale 1.25
+    transform "normal"
+}
+
+input {
+    keyboard {
+        xkb
+        numlock
+    }
+    trackpoint
+    mouse {
+        accel-speed 0.0
+    }
+    touchpad {
+        tap
+        accel-speed 0.0
+        natural-scroll
+        dwt
+    }
+}
+
+debug {
+    honor-xdg-activation-with-invalid-serial
+}
+
+cursor {
+    xcursor-theme "JuxCursor"
+    xcursor-size 37
+}
+

@@ -1,0 +1,65 @@
+#!/usr/bin/env python3
+"""niri-focus-column-left-or-center
+
+Bound to Mod+Left (Super+Left): focus the column to the left; if the focused
+window is already the leftmost column on the workspace, center it instead.
+
+  onClick(super+left) {
+      if (window.isLast()) window.center()
+      else focusLeft()
+  }
+"""
+import json
+import subprocess
+import sys
+
+
+def msg(*args):
+    r = subprocess.run(["niri", "msg", *args], capture_output=True, text=True)
+    if r.returncode != 0:
+        print(r.stderr.strip(), file=sys.stderr)
+        sys.exit(1)
+    return r.stdout
+
+
+def action(name, *args):
+    subprocess.run(["niri", "msg", "action", name, *args],
+                   capture_output=True, text=True)
+
+
+def main():
+    focused = json.loads(msg("--json", "focused-window"))
+    if not focused:
+        return  # nothing focused (overview / layer surface) — do nothing
+
+    ws_id = focused.get("workspace_id")
+    if focused.get("is_floating"):
+        # floating windows have no column; center it directly
+        action("center-window")
+        return
+
+    pos = (focused.get("layout") or {}).get("pos_in_scrolling_layout")
+    if not pos:
+        action("center-window")
+        return
+    col = pos[0]
+
+    windows = json.loads(msg("--json", "windows"))
+    leftmost = min(
+        (w["layout"]["pos_in_scrolling_layout"][0]
+         for w in windows
+         if w.get("workspace_id") == ws_id
+         and not w.get("is_floating")
+         and (w.get("layout") or {}).get("pos_in_scrolling_layout")),
+        default=col,
+    )
+
+    if col > leftmost:
+        action("focus-column-left")
+    else:
+        # already the leftmost column — center it
+        action("center-column")
+
+
+if __name__ == "__main__":
+    main()

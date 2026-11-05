@@ -1,0 +1,25 @@
+{
+  "materialWallpapers": {
+    "": {
+      "shared": {
+        "preset": "dune",
+        "seed": "#a6c8ff"
+      }
+    }
+  },
+  "wallpaperPath": "__HOME__/Pictures/Walpapers/rogue.jpg",
+  "wallpaperTransition": "random",
+  "wallpaperCyclingEnabled": true,
+  "wallpaperCyclingRandom": true,
+  "themeModeAutoEnabled": false,
+  "themeModeShareGammaSettings": false,
+  "dockPins": {
+    "dock": [
+      "com.mitchellh.ghostty",
+      "google-chrome",
+      "dev.duxlabs.files"
+    ]
+  },
+  "lastAppliedIconTheme": "Adwaita",
+  "configVersion": 7
+}
