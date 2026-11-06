@@ -1,5 +1,11 @@
 [Unit]
 Description=Apply Dux color to Chrome BrowserThemeColor
+# DMS rewrites dms-colors.json in rapid bursts (theme/wallpaper changes),
+# and this oneshot is trivially cheap + self-deduplicating (the script
+# exits early when the policy already matches). The default start rate
+# limit (5/10s) tripped during a DMS update storm and left the path unit
+# silently dead — so it is disabled here.
+StartLimitIntervalSec=0
 
 [Service]
 Type=oneshot
