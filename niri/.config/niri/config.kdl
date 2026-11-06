@@ -145,9 +145,10 @@ layout {
     // NOTE: all windows get a thin 2px border via the window-rule near the
     // bottom of this file (window rules override the layout settings here).
     shadow {
-        softness 30
-        spread 5
-        offset x=0 y=5
+        on
+        softness 40
+        spread 8
+        offset x=0 y=8
         color "#0007"
     }
     struts {
