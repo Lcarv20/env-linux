@@ -54,7 +54,7 @@ hosts/      imac18-3 (kernel args, BT rescue, DKMS audio, 5K outputs)
 | portals | `~/.config/xdg-desktop-portal/portals.conf`, `~/.config/xdg-terminals.list` |
 | environment | `~/.config/environment.d` |
 | systemd-user | `~/.config/systemd/user` |
-| scripts | `~/.local/bin` (niri-zoom helpers, dms-cursor-adapt, …) |
+| scripts | `~/.local/bin` (niri-zoom helpers, …) |
 | desktop-tools | `~/.config/emoji-picker` |
 
 ## 🛠 Notes

@@ -186,7 +186,7 @@ environment {
   QT_QPA_PLATFORMTHEME "gtk3"
   QT_QPA_PLATFORMTHEME_QT6 "gtk3"
   TERMINAL "ghostty"
-  // adaptive cursor: follow the "default" theme pointer (managed by dms-cursor-adapt)
+  // adaptive cursor: follow the "default" theme pointer (managed by dms-dynamic-cursor)
   XCURSOR_THEME "default"
 }
 hotkey-overlay {
@@ -294,7 +294,7 @@ window-rule {
 window-rule {
     border {
         on
-        width 2
+        width 1
     }
     // Window shadow alpha matched to Dux Shell's M3 elevation opacity
     // (settings.json: intensity 8 / opacity 50 → level-3 alpha ≈ 0.25).
