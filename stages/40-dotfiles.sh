@@ -117,7 +117,6 @@ DMS_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/dms"
 
 if is_dry_run; then
     ui_dry "Seed default DMS session.json ($DMS_STATE_DIR/session.json) and palette ($DMS_CACHE_DIR/dms-colors.json)"
-    ui_dry "Build Bibata Patched cursor color map (~/.local/bin/dms-cursor-adapt --refresh-map)"
 else
     mkdir -p "$DMS_STATE_DIR" "$DMS_CACHE_DIR"
     if [[ ! -s "$DMS_STATE_DIR/session.json" && -f "$DOTS_ROOT/system/dms/session.json" ]]; then
@@ -132,11 +131,6 @@ else
         ui_step "Seeded default DMS Material 3 palette → $DMS_CACHE_DIR/dms-colors.json"
     else
         ui_step "DMS color palette already present"
-    fi
-
-    if [[ -x "$HOME/.local/bin/dms-cursor-adapt" ]]; then
-        run_cmd "Build cursor color map (dms-cursor-adapt --refresh-map)" \
-            "$HOME/.local/bin/dms-cursor-adapt" --refresh-map
     fi
 fi
 

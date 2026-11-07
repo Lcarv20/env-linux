@@ -20,20 +20,41 @@
   "localWebSearch": {
     "enabled": true
   },
-  "dankCursorAdapt": {
-    "enabled": true,
-    "lastApplied": {
-      "theme": "Bibata-Material-Deep-Blue",
-      "mode": "dark",
-      "accent": "#4dd8e7"
-    },
-    "invertSets": false
+  "dmsDynamicCursor": {
+    "enabled": true
   },
   "emojiLauncher": {
     "enabled": true
   },
   "dankSoftwareDepot": {
-    "enabled": true
+    "enabled": true,
+    "updatesSnapshot": {
+      "ts": 1794064658,
+      "packages": []
+    },
+    "checkDurationSecs": 20,
+    "hideWhenUpToDate": true,
+    "launcherPromptDone": true,
+    "pendingShellRunLog": {},
+    "lastRunFailures": {},
+    "runHistory": [
+      {
+        "seconds": 38,
+        "items": 29
+      }
+    ],
+    "lastUpdateUnix": 1794058141,
+    "justUpdated": {
+      "plugin/dankDesktopWeather": {
+        "to": "",
+        "at": 1794058141000
+      },
+      "plugin/dankNotepadModule": {
+        "to": "",
+        "at": 1794058141000
+      }
+    },
+    "selfUpdateNotifiedVersion": "1.8.4"
   },
   "quickCapture": {
     "enabled": true,
@@ -50,5 +71,13 @@
     "mediaMode": "photo",
     "isVideoMode": false,
     "saveToDisk": false
+  },
+  "virtManager": {
+    "enabled": true
+  },
+  "emojiPicker": {
+    "enabled": true,
+    "defaultAction": "paste",
+    "defaultCategory": "recent"
   }
 }
