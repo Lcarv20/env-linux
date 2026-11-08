@@ -66,7 +66,7 @@ run_cmd "Enable greetd.service" sudo systemctl enable greetd.service
 run_cmd "Set default target → graphical.target" sudo systemctl set-default graphical.target
 
 # --- systemd user units -----------------------------------------------------------
-USER_UNITS=(dms.service dfiles.service dsearch.service dux-chrome-theme.path niri-zoomd.service)
+USER_UNITS=(dms.service dfiles.service dsearch.service dux-chrome-theme.path dux-cycle-radius.path niri-zoomd.service)
 
 if is_dry_run; then
     ui_dry "Wire systemd --user .wants symlinks + enable ${USER_UNITS[*]}"
@@ -90,6 +90,8 @@ else
         ln -sfn "$USER_SD/niri-zoomd.service" "$USER_SD/niri.service.wants/niri-zoomd.service"
     [[ -f "$USER_SD/dux-chrome-theme.path" ]] && \
         ln -sfn "$USER_SD/dux-chrome-theme.path" "$USER_SD/default.target.wants/dux-chrome-theme.path"
+    [[ -f "$USER_SD/dux-cycle-radius.path" ]] && \
+        ln -sfn "$USER_SD/dux-cycle-radius.path" "$USER_SD/default.target.wants/dux-cycle-radius.path"
 
     if have dms; then
         dms systemd enable --compositor niri >/dev/null 2>&1 || true

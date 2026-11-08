@@ -1,0 +1,9 @@
+[Unit]
+Description=Cycle shell & window border radius on wallpaper change
+# DMS rewrites colors and session files in bursts; StartLimitIntervalSec=0
+# ensures the path unit doesn't get rate-limited.
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/dux-cycle-radius auto

@@ -1,0 +1,132 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# -----------------------------------------------------------------------------
+# dux-cycle-radius: Cycle shell & window border radius with wallpaper changes
+#
+# Aesthetic Tiers:
+#   0: Mega Rounded   (radiusStrength: 100, windowRadius: 28px)
+#   1: Medium Rounded (radiusStrength: 50,  windowRadius: 16px)
+#   2: Subtle Rounded (radiusStrength: 20,  windowRadius: 8px)
+#   3: Square         (radiusStrength: 0,   windowRadius: 0px)
+# -----------------------------------------------------------------------------
+
+TIERS=(
+  "100 28 Mega Rounded"
+  "50  16 Medium Rounded"
+  "20  8  Subtle Rounded"
+  "0   0  Square"
+)
+NUM_TIERS="${#TIERS[@]}"
+
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/dms"
+mkdir -p "$STATE_DIR"
+INDEX_FILE="$STATE_DIR/radius-tier-index"
+LAST_WP_FILE="$STATE_DIR/last-radius-wallpaper"
+SESSION_FILE="$STATE_DIR/session.json"
+
+get_current_index() {
+  if [[ -f "$INDEX_FILE" ]]; then
+    local idx
+    idx="$(< "$INDEX_FILE")"
+    if [[ "$idx" =~ ^[0-9]+$ ]] && (( idx >= 0 && idx < NUM_TIERS )); then
+      echo "$idx"
+      return
+    fi
+  fi
+  echo 3 # default to Square if unset
+}
+
+apply_tier() {
+  local idx="$1"
+  local notify="${2:-0}"
+  read -r strength radius label <<< "${TIERS[$idx]}"
+
+  # Apply both shell UI radius strength and Niri window radius override
+  dms ipc call settings set radiusStrength "$strength" >/dev/null 2>&1 || true
+  dms ipc call settings set niriLayoutRadiusOverride "$radius" >/dev/null 2>&1 || true
+
+  echo "$idx" > "$INDEX_FILE"
+
+  if (( notify == 1 )); then
+    dms notify -a "DMS" -i preferences-desktop-theme "Border Radius" "$label (strength: $strength, window: ${radius}px)" >/dev/null 2>&1 || true
+  fi
+}
+
+cmd="${1:-auto}"
+
+case "$cmd" in
+  auto)
+    # Check if wallpaper actually changed
+    if [[ -f "$SESSION_FILE" ]]; then
+      CURRENT_WP="$(jq -r '.wallpaperPath // empty' "$SESSION_FILE" 2>/dev/null || true)"
+      if [[ -n "$CURRENT_WP" ]]; then
+        if [[ -f "$LAST_WP_FILE" ]] && [[ "$(< "$LAST_WP_FILE")" == "$CURRENT_WP" ]]; then
+          exit 0
+        fi
+        echo "$CURRENT_WP" > "$LAST_WP_FILE"
+      fi
+    fi
+
+    # Advance to next tier
+    current_idx="$(get_current_index)"
+    next_idx=$(( (current_idx + 1) % NUM_TIERS ))
+    apply_tier "$next_idx" 0
+    ;;
+
+  next)
+    current_idx="$(get_current_index)"
+    next_idx=$(( (current_idx + 1) % NUM_TIERS ))
+    apply_tier "$next_idx" 1
+    read -r _ _ label <<< "${TIERS[$next_idx]}"
+    echo "Switched to tier $next_idx: $label"
+    ;;
+
+  prev)
+    current_idx="$(get_current_index)"
+    prev_idx=$(( (current_idx - 1 + NUM_TIERS) % NUM_TIERS ))
+    apply_tier "$prev_idx" 1
+    read -r _ _ label <<< "${TIERS[$prev_idx]}"
+    echo "Switched to tier $prev_idx: $label"
+    ;;
+
+  set)
+    target_idx="${2:-}"
+    if [[ -z "$target_idx" || ! "$target_idx" =~ ^[0-9]+$ ]] || (( target_idx < 0 || target_idx >= NUM_TIERS )); then
+      echo "Error: Tier index must be between 0 and $(( NUM_TIERS - 1 ))" >&2
+      exit 1
+    fi
+    apply_tier "$target_idx" 1
+    read -r _ _ label <<< "${TIERS[$target_idx]}"
+    echo "Set tier $target_idx: $label"
+    ;;
+
+  status)
+    current_idx="$(get_current_index)"
+    read -r strength radius label <<< "${TIERS[$current_idx]}"
+    echo "Current Tier: $current_idx ($label)"
+    echo "Radius Strength: $strength"
+    echo "Window Radius Override: ${radius}px"
+    if [[ -f "$LAST_WP_FILE" ]]; then
+      echo "Last Wallpaper: $(< "$LAST_WP_FILE")"
+    fi
+    echo ""
+    echo "Available Tiers:"
+    for i in "${!TIERS[@]}"; do
+      read -r s r l <<< "${TIERS[$i]}"
+      mark=" "
+      (( i == current_idx )) && mark="*"
+      printf " %s [%d] %-16s (strength: %3d, window: %2dpx)\n" "$mark" "$i" "$l" "$s" "$r"
+    done
+    ;;
+
+  help|-h|--help)
+    echo "Usage: dux-cycle-radius [auto|next|prev|set <index>|status]"
+    ;;
+
+  *)
+    echo "Unknown command: $cmd" >&2
+    echo "Usage: dux-cycle-radius [auto|next|prev|set <index>|status]" >&2
+    exit 1
+    ;;
+esac

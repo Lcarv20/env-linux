@@ -1,0 +1,10 @@
+[Unit]
+Description=Watch Dux wallpaper and theme changes to cycle border radius
+
+[Path]
+PathChanged=%h/.cache/dms/dms-colors.json
+PathChanged=%h/.local/state/dms/session.json
+Unit=dux-cycle-radius.service
+
+[Install]
+WantedBy=default.target
