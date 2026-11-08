@@ -7,7 +7,7 @@ source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
 ui_header "20 · Niri + Dux Shell verification"
 
-REQUIRED_BINARIES=(niri dms dms-greeter dfiles awww matugen wtype)
+REQUIRED_BINARIES=(niri dms dms-greeter dfiles matugen wtype)
 
 # --- verification ---------------------------------------------------------------
 missing=()
@@ -26,7 +26,7 @@ elif ((${#missing[@]})); then
     ui_info "Run stages 00-repos.sh and 10-desktop-base.sh first, then retry."
     exit 1
 else
-    ui_step "niri · dms · dms-greeter · dfiles · awww · matugen · wtype all installed"
+    ui_step "niri · dms · dms-greeter · dfiles · matugen · wtype all installed"
 fi
 
 # --- legacy cleanup -------------------------------------------------------------

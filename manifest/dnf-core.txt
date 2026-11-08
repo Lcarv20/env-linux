@@ -13,7 +13,6 @@ danksearch
 dankcalendar
 quickshell
 matugen
-awww
 acl
 
 # --- Graphical apps & helpers ---

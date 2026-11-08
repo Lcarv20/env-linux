@@ -12,7 +12,7 @@
     "enabled": true
   },
   "swwwSync": {
-    "enabled": true
+    "enabled": false
   },
   "simpleCalc": {
     "enabled": true
@@ -21,7 +21,8 @@
     "enabled": true
   },
   "dmsDynamicCursor": {
-    "enabled": true
+    "enabled": true,
+    "invertSets": false
   },
   "emojiLauncher": {
     "enabled": true
@@ -29,10 +30,10 @@
   "dankSoftwareDepot": {
     "enabled": true,
     "updatesSnapshot": {
-      "ts": 1794064658,
+      "ts": 1794153401,
       "packages": []
     },
-    "checkDurationSecs": 20,
+    "checkDurationSecs": 14,
     "hideWhenUpToDate": true,
     "launcherPromptDone": true,
     "pendingShellRunLog": {},
@@ -41,17 +42,21 @@
       {
         "seconds": 38,
         "items": 29
+      },
+      {
+        "seconds": 55,
+        "items": 23
       }
     ],
-    "lastUpdateUnix": 1794058141,
+    "lastUpdateUnix": 1794144671,
     "justUpdated": {
-      "plugin/dankDesktopWeather": {
-        "to": "",
-        "at": 1794058141000
+      "plugin/quickCapture": {
+        "to": "5.10.0",
+        "at": 1794144672410
       },
-      "plugin/dankNotepadModule": {
-        "to": "",
-        "at": 1794058141000
+      "plugin/emojiPicker": {
+        "to": "0.6.1",
+        "at": 1794144672410
       }
     },
     "selfUpdateNotifiedVersion": "1.8.4"
