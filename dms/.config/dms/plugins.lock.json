@@ -4,7 +4,26 @@
     "dankDesktopWeather": {
       "repo": "https://github.com/duxlabs-dev/dux-plugins",
       "path": "DankDesktopWeather",
-      "commit": "be0b733a4036e0d1e5b3a1f11933569e61719be3"
+      "commit": "70e926ea529c729c7e2368e096046295f0d90d48"
+    },
+    "dankNotepadModule": {
+      "repo": "https://github.com/duxlabs-dev/dux-plugins",
+      "path": "DankNotepadModule",
+      "commit": "70e926ea529c729c7e2368e096046295f0d90d48"
+    },
+    "dankSoftwareDepot": {
+      "repo": "https://github.com/vinceecniv/DuxSoftwareDepot",
+      "commit": "363728a938f156dc1e84c4eadfe842e31f263a3c"
+    },
+    "emojiPicker": {
+      "repo": "https://github.com/hthienloc/dms-plugins",
+      "path": "emojiPicker",
+      "commit": "47fd82f6046dc03bd5ca323a3d7f6fd00431ce1c"
+    },
+    "quickCapture": {
+      "repo": "https://github.com/hthienloc/dms-plugins",
+      "path": "quickCapture",
+      "commit": "47fd82f6046dc03bd5ca323a3d7f6fd00431ce1c"
     }
   }
 }

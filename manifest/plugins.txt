@@ -1,0 +1,6 @@
+# Custom and external DMS plugins
+# Format: <repo-url> <folder-name> [symlink-name-in-dms-plugins]
+https://github.com/Lcarv20/dms-dynamic-cursor.git dms-dynamic-cursor
+https://github.com/Lcarv20/dms-chrome-theme.git dms-chrome-theme
+# External community plugin (not in official DMS registry)
+https://github.com/MAHcodes/dms-cpufreq.git dms-cpufreq CpuFreq

@@ -8,12 +8,12 @@ source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
 ui_header "30 · Assets (wallpapers · icons · fonts · dfiles-shell · bin)"
 
-ASSET_REPO="Lcarv20/dots-linux"
-ASSET_TAG="assets-v1"
-ASSET_NAME="dots-linux-assets-v1.tar.zst"
+ASSET_REPO="Lcarv20/env-linux"
+ASSET_TAG="env-assets-v1"
+ASSET_NAME="env-assets-v1.tar.zst"
 ASSET_URL="https://github.com/$ASSET_REPO/releases/download/$ASSET_TAG/$ASSET_NAME"
 
-CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/dots-linux-assets"
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/env-linux-assets"
 TARBALL="$CACHE_DIR/$ASSET_NAME"
 SHA_FILE="$CACHE_DIR/assets-v1.sha256"
 STAGE_DIR="$CACHE_DIR/extracted/$ASSET_TAG"
@@ -68,6 +68,8 @@ run_cmd "Extract tarball (zstd)" tar -x --zstd -f "$TARBALL" -C "$STAGE_DIR"
 if [[ -d "$STAGE_DIR/wallpapers" ]]; then
     copy_tree "$STAGE_DIR/wallpapers" "$HOME/Pictures/Walpapers" \
         "Install wallpapers → ~/Pictures/Walpapers/"
+    run_cmd "Link ~/Pictures/Wallpapers → ~/Pictures/Walpapers" \
+        ln -sfn Walpapers "$HOME/Pictures/Wallpapers"
 else
     ui_warn "No wallpapers/ in tarball — skipped."
 fi

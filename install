@@ -22,32 +22,29 @@ Usage:
 Options:
   -h, --help            Show this help and exit.
   --dry-run             Print every action without executing anything.
-  --yes                 Non-interactive: accept defaults, never prompt.
-  --profile=PROFILE     minimal : complete desktop (repos, packages, assets,
-                                 dotfiles, services, hardware) — no extras.
-                        full    : everything in minimal + extras (Chrome,
-                                  language runtimes, Flathub, udev rules).
-                        custom  : pick stages interactively.
+  -y, --yes             Non-interactive: run all stages without prompting.
   --host=HOST           auto (default) | imac18-3 | vm | none
                         auto detects via DMI product name + systemd-detect-virt.
-  --with-extras         Add the extras stage (60) to any profile.
-  --with-mango          Also stow the 'mango' package (stages 40 & 60).
+  --with-extras         Add the extras stage (60: clang, mise runtimes, udev).
+  --with-mango          Also stow the 'mango' compositor package (stage 40).
 
 Examples:
-  ./install                          # interactive TUI
+  ./install                          # guided step-by-step interactive install
   ./install --dry-run                # full rehearsal, zero changes
-  ./install --yes --profile=full     # unattended, everything
-  ./install --host=vm --profile=minimal
+  ./install --yes                    # unattended run (yes to all)
+  ./install --host=vm --dry-run
 
 Stages:
-  00-repos        RPM Fusion, Terra, COPRs
-  10-desktop-base dnf core packages, mise, zsh login shell
-  20-niri-dms     verify Niri/DMS stack, remove legacy ~/.local/bin strays
-  30-assets       wallpapers, icons, fonts, dfiles-shell (+patches), bin
-  40-dotfiles     stow --no-folding all core packages, GTK/X cursor settings
-  50-services     chrome policy dir, greetd, display managers, user units
-  60-extras       Chrome repo, mise runtimes, Flathub, Keychron udev (extras)
-  90-hardware     host quirks (imac18-3 or vm) — auto-skipped otherwise
+  00-repos        RPM Fusion, Terra, COPRs (DMS & DankLinux)
+  10-desktop-base Core desktop packages (~72 dnf pkgs, mise CLI tools, zsh)
+  20-niri-dms     Verify Niri & DMS binaries, clean legacy paths
+  30-assets       56 wallpapers, fonts, JuxCursor, dfiles-shell, zoom daemons
+  35-plugins      DMS plugins (restore 5 registry plugins, clone & link custom repos)
+  40-dotfiles     Stow packages (niri, dms, portals, environment.d, systemd-user, scripts)
+  45-own-software Personal tools (web-app-installer: websites → desktop apps)
+  50-services     Chrome managed policy dir, greetd display manager, user systemd units
+  60-extras       Optional extras (clang, mise runtimes, Keychron udev rule)
+  90-hardware     Host quirks (imac18-3: 5K, audio, BT rescue; vm: guest agents)
 EOF
 }
 
@@ -131,61 +128,54 @@ ui_info "Hardware : ${DMI_PRODUCT} (virt: ${VIRT:-none})"
 ui_info "Host     : $HOST_PROFILE (detection said: $DETECTED_HOST)"
 
 # ---------------------------------------------------------------- stages -----
+stage_description() {
+    case "$1" in
+        00-repos.sh)        echo "Enable package repositories (RPM Fusion Free/Nonfree, Terra, and COPRs for DMS/Dux)" ;;
+        10-desktop-base.sh) echo "Install core desktop packages (~72 dnf packages, mise CLI tools, antidote, zsh)" ;;
+        20-niri-dms.sh)     echo "Verify Niri compositor & DMS binaries, and clean legacy strays" ;;
+        30-assets.sh)       echo "Download & install env-assets-v1 (56 wallpapers, fonts, JuxCursor, dfiles-shell, zoom daemons)" ;;
+        35-plugins.sh)      echo "Install DMS plugins (restore 5 registry plugins from lockfile, clone & link custom repos)" ;;
+        40-dotfiles.sh)     echo "Stow desktop dotfiles (niri, dms, portals, environment.d, systemd-user, scripts) and initialize cursors" ;;
+        45-own-software.sh) echo "Clone and build personal software (web-app-installer: turn websites into desktop apps)" ;;
+        50-services.sh)     echo "Configure Chrome policies, greetd display manager (dms-greeter), and enable user systemd units" ;;
+        60-extras.sh)       echo "Install optional extras (clang, mise language runtimes, Keychron udev rule)" ;;
+        90-hardware.sh)     echo "Apply hardware quirks (iMac: 5K video, audio DKMS, BT rescue; VM: guest agents)" ;;
+        *)                  echo "Execute $1" ;;
+    esac
+}
+
 mapfile -t ALL_STAGES < <(cd "$DOTS/stages" && ls [0-9]*.sh 2>/dev/null | sort)
 ((${#ALL_STAGES[@]} > 0)) || { ui_error "no stage scripts found in $DOTS/stages"; exit 1; }
 
-# Profile presets (stage filenames).
-stages_minimal=("00-repos.sh" "10-desktop-base.sh" "20-niri-dms.sh" "30-assets.sh"
-                "40-dotfiles.sh" "50-services.sh" "90-hardware.sh")
-stages_full=("00-repos.sh" "10-desktop-base.sh" "20-niri-dms.sh" "30-assets.sh"
-             "40-dotfiles.sh" "50-services.sh" "60-extras.sh" "90-hardware.sh")
+# Canonical stages list
+ALL_STAGE_FILES=("00-repos.sh" "10-desktop-base.sh" "20-niri-dms.sh" "30-assets.sh"
+                 "35-plugins.sh" "40-dotfiles.sh" "45-own-software.sh" "50-services.sh")
+[[ "$WITH_EXTRAS" == "true" ]] && ALL_STAGE_FILES+=("60-extras.sh")
+ALL_STAGE_FILES+=("90-hardware.sh")
 
-if [[ -z "$PROFILE" ]]; then
-    if [[ "$ASSUME_YES" == "true" ]]; then
-        PROFILE="minimal"
-        ui_info "Profile  : minimal (--yes default; use --profile= to change)"
-    else
-        PROFILE="$(ui_choose "Installation profile" \
-            "minimal — complete desktop, no extras" \
-            "full — everything incl. extras" \
-            "custom — hand-pick stages")" || { ui_info "Aborted."; exit 0; }
-        PROFILE="${PROFILE%% —*}"
-    fi
-fi
-
-case "$PROFILE" in
-    minimal) RUN_STAGES=("${stages_minimal[@]}") ;;
-    full)    RUN_STAGES=("${stages_full[@]}"); WITH_EXTRAS=true ;;
-    custom)
-        if [[ "$ASSUME_YES" == "true" ]]; then
-            ui_warn "--yes with custom profile is ambiguous — falling back to minimal."
-            RUN_STAGES=("${stages_minimal[@]}")
-        else
-            picks="$(ui_choose_multi "Select stages to run (in listed order)" "${ALL_STAGES[@]}")" \
-                || { ui_info "Aborted."; exit 0; }
-            RUN_STAGES=()
-            for s in "${ALL_STAGES[@]}"; do       # keep canonical order
-                grep -qx "$s" <<<"$picks" && RUN_STAGES+=("$s")
-            done
-            ((${#RUN_STAGES[@]} > 0)) || { ui_error "No stages selected."; exit 1; }
-        fi
-        ;;
-esac
-
-# --with-extras: make sure stage 60 is in the run list.
-if [[ "$WITH_EXTRAS" == "true" ]] && ! printf '%s\n' "${RUN_STAGES[@]}" | grep -q '^60-extras'; then
-    RUN_STAGES+=("60-extras.sh")
-fi
-# Selecting 60 by hand implies extras.
-printf '%s\n' "${RUN_STAGES[@]}" | grep -q '^60-extras' && WITH_EXTRAS=true
-
-# Only keep stages that actually exist in the repo.
-FINAL_STAGES=()
-for s in "${RUN_STAGES[@]}"; do
-    [[ -f "$DOTS/stages/$s" ]] && FINAL_STAGES+=("$s")
+RUN_STAGES=()
+for s in "${ALL_STAGE_FILES[@]}"; do
+    [[ -f "$DOTS/stages/$s" ]] && RUN_STAGES+=("$s")
 done
-((${#FINAL_STAGES[@]} > 0)) || { ui_error "No runnable stages selected."; exit 1; }
-RUN_STAGES=("${FINAL_STAGES[@]}")
+
+if [[ "$PROFILE" == "custom" ]]; then
+    if [[ "$ASSUME_YES" == "true" ]]; then
+        ui_warn "--yes with custom profile is ambiguous — running standard stages."
+    else
+        picks="$(ui_choose_multi "Select stages to run (in order)" "${ALL_STAGES[@]}")" \
+            || { ui_info "Aborted."; exit 0; }
+        RUN_STAGES=()
+        for s in "${ALL_STAGES[@]}"; do
+            grep -qx "$s" <<<"$picks" && RUN_STAGES+=("$s")
+        done
+        ((${#RUN_STAGES[@]} > 0)) || { ui_error "No stages selected."; exit 1; }
+    fi
+elif [[ "$ASSUME_YES" != "true" ]]; then
+    EXEC_MODE="$(ui_choose "How would you like to run the installer?" \
+        "guided — step-by-step confirmation with narration" \
+        "yes to all — run all stages automatically without prompting")" || { ui_info "Aborted."; exit 0; }
+    [[ "$EXEC_MODE" =~ "yes to all" ]] && ASSUME_YES=true
+fi
 
 # --------------------------------------------------------------- summary -----
 summary_box() { # summary_box TITLE COLOR rest-of-lines-on-stdin
@@ -204,7 +194,7 @@ summary_box() { # summary_box TITLE COLOR rest-of-lines-on-stdin
 {
     echo "Hardware · ${DMI_PRODUCT} (virt: ${VIRT:-none})"
     echo "Host ····· $HOST_PROFILE"
-    echo "Profile ·· $PROFILE"
+    echo "Mode ····· $($ASSUME_YES && echo "Yes to all (unattended)" || echo "Guided (step-by-step)")"
     echo "Extras ··· $WITH_EXTRAS    Mango · $WITH_MANGO"
     echo "Dry run ·· $DRY_RUN"
     echo "Stages ··· ${RUN_STAGES[*]}"
@@ -216,15 +206,25 @@ if ! ui_confirm "Proceed with this plan?"; then
 fi
 
 # ---------------------------------------------------------------- run --------
-export DRY_RUN HOST_PROFILE WITH_EXTRAS WITH_MANGO PROFILE LOG_FILE ASSUME_YES
-log INFO "=== install start: profile=$PROFILE host=$HOST_PROFILE dry-run=$DRY_RUN extras=$WITH_EXTRAS mango=$WITH_MANGO ==="
+export DRY_RUN HOST_PROFILE WITH_EXTRAS WITH_MANGO LOG_FILE ASSUME_YES
+log INFO "=== install start: host=$HOST_PROFILE dry-run=$DRY_RUN extras=$WITH_EXTRAS mango=$WITH_MANGO ==="
 
 declare -a OK_STAGES=()
 declare -a FAIL_STAGES=()
 FAILED=false
 
 for stage in "${RUN_STAGES[@]}"; do
+    desc="$(stage_description "$stage")"
     ui_header "▶ $stage"
+    ui_info "$desc"
+
+    if [[ "$ASSUME_YES" != "true" ]]; then
+        if ! ui_confirm "Proceed with $stage?"; then
+            ui_warn "Skipped $stage by user choice."
+            continue
+        fi
+    fi
+
     if bash "$DOTS/stages/$stage"; then
         OK_STAGES+=("$stage")
     else
