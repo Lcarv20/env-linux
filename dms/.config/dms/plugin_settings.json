@@ -30,10 +30,10 @@
   "dankSoftwareDepot": {
     "enabled": true,
     "updatesSnapshot": {
-      "ts": 1794153401,
+      "ts": 1794189822,
       "packages": []
     },
-    "checkDurationSecs": 14,
+    "checkDurationSecs": 12,
     "hideWhenUpToDate": true,
     "launcherPromptDone": true,
     "pendingShellRunLog": {},
@@ -46,9 +46,13 @@
       {
         "seconds": 55,
         "items": 23
+      },
+      {
+        "seconds": 1,
+        "items": 2
       }
     ],
-    "lastUpdateUnix": 1794144671,
+    "lastUpdateUnix": 1794182155,
     "justUpdated": {
       "plugin/quickCapture": {
         "to": "5.10.0",
@@ -57,6 +61,14 @@
       "plugin/emojiPicker": {
         "to": "0.6.1",
         "at": 1794144672410
+      },
+      "plugin/dankDesktopWeather": {
+        "to": "",
+        "at": 1794164769813
+      },
+      "plugin/dankNotepadModule": {
+        "to": "",
+        "at": 1794164769813
       }
     },
     "selfUpdateNotifiedVersion": "1.8.4"
@@ -84,5 +96,13 @@
     "enabled": true,
     "defaultAction": "paste",
     "defaultCategory": "recent"
+  },
+  "cpuFreq": {
+    "enabled": true,
+    "refreshInterval": "2000",
+    "barSeparator": "dot"
+  },
+  "dmsChromeTheme": {
+    "enabled": true
   }
 }

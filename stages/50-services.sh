@@ -1,6 +1,6 @@
 #!/bin/bash
 # stages/50-services.sh — system + user services:
-#   • /etc/opt/chrome/policies/managed (group-writable for dux-chrome-theme)
+#   • /etc/opt/chrome/policies/managed (group-writable for dms-chrome-theme)
 #   • greetd config (config.toml, niri config.kdl + host-specific dms.kdl)
 #   • disable conflicting DMs, enable greetd, graphical.target
 #   • enable systemd --user units
@@ -13,8 +13,8 @@ resolve_host_profile
 ensure_sudo
 
 # --- Chrome managed-policies dir -------------------------------------------------
-# dux-chrome-theme writes color.json here without sudo:
-# root:$USER ownership, mode 0775.
+# dms-chrome-theme writes color.json here without sudo:
+# root:$USER ownership, mode 0775. Managed by dms-chrome-theme plugin.
 run_cmd "/etc/opt/chrome/policies/managed (root:$USER, 0775)" \
     sudo install -d -o root -g "$USER" -m 0775 /etc/opt/chrome/policies/managed
 
@@ -66,7 +66,7 @@ run_cmd "Enable greetd.service" sudo systemctl enable greetd.service
 run_cmd "Set default target → graphical.target" sudo systemctl set-default graphical.target
 
 # --- systemd user units -----------------------------------------------------------
-USER_UNITS=(dms.service dfiles.service dsearch.service dux-chrome-theme.path dux-cycle-radius.path niri-zoomd.service)
+USER_UNITS=(dms.service dfiles.service dsearch.service dux-cycle-radius.path niri-zoomd.service)
 
 if is_dry_run; then
     ui_dry "Wire systemd --user .wants symlinks + enable ${USER_UNITS[*]}"
@@ -88,8 +88,6 @@ else
         ln -sfn /usr/lib/systemd/user/dsearch.service "$USER_SD/default.target.wants/dsearch.service"
     [[ -f "$USER_SD/niri-zoomd.service" ]] && \
         ln -sfn "$USER_SD/niri-zoomd.service" "$USER_SD/niri.service.wants/niri-zoomd.service"
-    [[ -f "$USER_SD/dux-chrome-theme.path" ]] && \
-        ln -sfn "$USER_SD/dux-chrome-theme.path" "$USER_SD/default.target.wants/dux-chrome-theme.path"
     [[ -f "$USER_SD/dux-cycle-radius.path" ]] && \
         ln -sfn "$USER_SD/dux-cycle-radius.path" "$USER_SD/default.target.wants/dux-cycle-radius.path"
 
