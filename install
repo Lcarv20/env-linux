@@ -127,6 +127,45 @@ fi
 ui_info "Hardware : ${DMI_PRODUCT} (virt: ${VIRT:-none})"
 ui_info "Host     : $HOST_PROFILE (detection said: $DETECTED_HOST)"
 
+# -------------------------------------------------------- preflight / dux -----
+check_dux_installed() {
+    have dms && have niri && have dms-greeter
+}
+
+if check_dux_installed; then
+    ui_step "Official Dux Shell stack detected ($(dms version 2>/dev/null || echo "installed"))"
+elif ! is_dry_run; then
+    ui_warn "Dux Shell stack not detected (/usr/bin/dms, niri, dms-greeter missing)."
+    ui_info "The official upstream installer sets up the base packages:"
+    ui_info "  curl -fsSL https://install.duxlabs.dev | sh"
+
+    if $ASSUME_YES; then
+        ui_step "Running official Dux installer in unattended mode..."
+        curl -fsSL https://install.duxlabs.dev | sh -s -- --compositor niri --term ghostty --all-features --yes
+    else
+        action="$(ui_choose "How would you like to proceed?" \
+            "run official Dux installer now (curl -fsSL https://install.duxlabs.dev | sh)" \
+            "exit so I can inspect and run it myself first" \
+            "continue anyway with internal stages")" || { ui_info "Aborted."; exit 0; }
+
+        case "$action" in
+            run*)
+                ui_step "Running official Dux installer..."
+                curl -fsSL https://install.duxlabs.dev | sh -s -- --compositor niri --term ghostty --all-features
+                ;;
+            exit*)
+                ui_info "Run 'curl -fsSL https://install.duxlabs.dev | sh' and re-run ./install when ready."
+                exit 0
+                ;;
+            continue*)
+                ui_info "Continuing with internal stages..."
+                ;;
+        esac
+    fi
+else
+    ui_dry "preflight: check for official Dux stack (dms, niri, dms-greeter)"
+fi
+
 # ---------------------------------------------------------------- stages -----
 stage_description() {
     case "$1" in

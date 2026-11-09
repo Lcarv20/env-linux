@@ -346,6 +346,15 @@ window-rule {
         blur false
     }
 }
+
+window-rule {
+    match app-id="^dev.zed.Zed$"
+    opacity 0.95
+    background-effect {
+        blur true
+    }
+}
+
 debug {
     honor-xdg-activation-with-invalid-serial
 }
