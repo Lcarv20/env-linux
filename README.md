@@ -35,7 +35,7 @@ system/     root-owned files: greetd, greeter niri configs, udev, patches
 hosts/      imac18-3 (kernel args, BT rescue, DKMS audio, 5K outputs)
             vm (guest agents)
 <packages>/ niri · dms · mango · portals · environment · systemd-user ·
-            scripts · desktop-tools
+            scripts
 ```
 
 ### Host profiles
@@ -55,7 +55,6 @@ hosts/      imac18-3 (kernel args, BT rescue, DKMS audio, 5K outputs)
 | environment | `~/.config/environment.d` |
 | systemd-user | `~/.config/systemd/user` |
 | scripts | `~/.local/bin` (niri-zoom helpers, …) |
-| desktop-tools | `~/.config/emoji-picker` |
 
 ## 🛠 Notes
 

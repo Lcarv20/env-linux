@@ -6,9 +6,7 @@ source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
 ui_header "40 · Dotfiles (stow --no-folding)"
 
-STOW_PKGS=(fastfetch ghostty git lazygit lsd nvim starship zed zsh
-           niri dms portals environment systemd-user scripts
-           desktop-tools)
+STOW_PKGS=(niri dms portals environment systemd-user scripts)
 [[ "$WITH_MANGO" == "true" ]] && STOW_PKGS+=(mango)
 
 BACKUP_DIR="$HOME/.dots-backup-$(date +%Y%m%d-%H%M%S)"

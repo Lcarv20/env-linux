@@ -1,6 +1,0 @@
-org.gimp.GIMP
-org.localsend.localsend_app
-com.orama_interactive.Pixelorama
-net.pixieditor.PixiEditor
-net.lutris.Lutris
-com.heroicgameslauncher.hgl

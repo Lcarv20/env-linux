@@ -1,5 +1,5 @@
 #!/bin/bash
-# dots-linux installer — modular Fedora Server → Niri + Dux Shell desktop.
+# env-linux installer — modular Fedora Server → Niri + Dux Shell desktop.
 #
 #   ./install [--dry-run] [--yes] [--profile=minimal|full|custom]
 #             [--host=auto|imac18-3|vm|none] [--with-extras] [--with-mango]
@@ -14,7 +14,7 @@ source "$DOTS/stages/lib.sh"
 # ------------------------------------------------------------------ usage ----
 show_help() {
     cat <<'EOF'
-dots-linux installer — Fedora Server/Minimal → Niri + Dux Shell
+env-linux installer — Fedora Server/Minimal → Niri + Dux Shell
 
 Usage:
   ./install [OPTIONS]
@@ -120,10 +120,10 @@ fi
 if [[ -n "$GUM_BIN" && -t 1 ]]; then
     gum style --foreground 212 --border-foreground 212 --border double \
         --padding '1 4' --margin '0 1' --align center --bold \
-        "dots-linux" "Fedora → Niri + Dux Shell"
+        "env-linux" "Fedora → Niri + Dux Shell"
 else
     printf '\n%s%s%s\n' "$C_BLD$C_MAG" "══════════════════════════════════════" "$C_RST"
-    printf '  %sdots-linux%s — Fedora → Niri + Dux Shell\n' "$C_BLD" "$C_RST"
+    printf '  %senv-linux%s — Fedora → Niri + Dux Shell\n' "$C_BLD" "$C_RST"
     printf '%s%s%s\n\n' "$C_BLD$C_MAG" "══════════════════════════════════════" "$C_RST"
 fi
 

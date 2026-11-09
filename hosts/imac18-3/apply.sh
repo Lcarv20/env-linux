@@ -82,12 +82,8 @@ else
     ui_warn "dkms unavailable — audio module not built."
 fi
 
-# --- d) outputs + greeter dms.kdl ------------------------------------------------------
+# --- d) outputs ---------------------------------------------------------------------
 run_cmd "outputs.kdl → ~/.config/niri/dms/outputs.kdl (eDP-1 3840x2160@59.997, scale 1.25)" \
     install -Dm644 "$HOST_DIR/outputs.kdl" "$HOME/.config/niri/dms/outputs.kdl"
-
-install_file 0644 "$HOST_DIR/../../system/greetd/niri/dms-imac18-3.kdl" \
-    /etc/greetd/niri/dms.kdl \
-    "greetd dms.kdl → /etc/greetd/niri/dms.kdl (iMac18,3: Adwaita 37)"
 
 ui_info "iMac18,3 stage complete — REBOOT required for kernel args, DKMS audio and greetd."

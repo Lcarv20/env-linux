@@ -27,8 +27,4 @@ fi
 run_cmd "outputs.kdl → ~/.config/niri/dms/outputs.kdl (no hardcoded 5K scale)" \
     install -Dm644 "$HOST_DIR/outputs.kdl" "$HOME/.config/niri/dms/outputs.kdl"
 
-install_file 0644 "$HOST_DIR/../../system/greetd/niri/dms-generic.kdl" \
-    /etc/greetd/niri/dms.kdl \
-    "greetd dms.kdl → /etc/greetd/niri/dms.kdl (generic: xcursor-size 32)"
-
 ui_info "VM stage complete — reboot to land in dms-greeter → niri."

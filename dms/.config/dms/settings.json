@@ -418,7 +418,7 @@
   "matugenTemplateGhostty": true,
   "matugenTemplateNeovim": false,
   "matugenTemplateVscode": false,
-  "matugenTemplateZed": false,
+  "matugenTemplateZed": true,
   "matugenSpec": "dms",
   "matugenScheme": "scheme-expressive",
   "acMonitorTimeout": 300,
@@ -516,5 +516,6 @@
     }
   },
   "audioMono": false,
-  "audioShowStreamDevices": true
+  "audioShowStreamDevices": true,
+  "lockScreenShowPowerActions": true
 }
