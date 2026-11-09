@@ -23,6 +23,6 @@ debug {
 }
 
 cursor {
-    xcursor-theme "JuxCursor"
+    xcursor-theme "Adwaita"
     xcursor-size 32
 }

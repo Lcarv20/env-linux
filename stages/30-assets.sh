@@ -78,22 +78,22 @@ if [[ -d "$STAGE_DIR/icons" ]]; then
         "Install icons → ~/.local/share/icons/"
 fi
 
-# Cursor fallback theme: ~/.icons/default inherits JuxCursor.
+# Cursor fallback theme: ~/.icons/default inherits Adwaita.
 ICONS_DEFAULT="$HOME/.icons/default"
 if is_dry_run; then
-    ui_dry "Set cursor fallback → ~/.icons/default/index.theme (Inherits=JuxCursor)"
-elif [[ -f "$ICONS_DEFAULT/index.theme" ]] && grep -q '^\s*Inherits\s*=\s*JuxCursor\s*$' "$ICONS_DEFAULT/index.theme"; then
-    ui_step "Cursor fallback already JuxCursor"
+    ui_dry "Set cursor fallback → ~/.icons/default/index.theme (Inherits=Adwaita)"
+elif [[ -f "$ICONS_DEFAULT/index.theme" ]] && grep -q '^\s*Inherits\s*=\s*Adwaita\s*$' "$ICONS_DEFAULT/index.theme"; then
+    ui_step "Cursor fallback already Adwaita"
 else
     mkdir -p "$ICONS_DEFAULT"
     if [[ -f "$ICONS_DEFAULT/index.theme" ]] && grep -q '^\s*\[Icon Theme\]' "$ICONS_DEFAULT/index.theme"; then
-        sed -i -E 's/^\s*Inherits\s*=.*/Inherits=JuxCursor/' "$ICONS_DEFAULT/index.theme"
+        sed -i -E 's/^\s*Inherits\s*=.*/Inherits=Adwaita/' "$ICONS_DEFAULT/index.theme"
         grep -q '^\s*Inherits' "$ICONS_DEFAULT/index.theme" \
-            || printf 'Inherits=JuxCursor\n' >> "$ICONS_DEFAULT/index.theme"
+            || printf 'Inherits=Adwaita\n' >> "$ICONS_DEFAULT/index.theme"
     else
-        printf '[Icon Theme]\nInherits=JuxCursor\n' > "$ICONS_DEFAULT/index.theme"
+        printf '[Icon Theme]\nInherits=Adwaita\n' > "$ICONS_DEFAULT/index.theme"
     fi
-    ui_step "Cursor fallback → JuxCursor (~/.icons/default/index.theme)"
+    ui_step "Cursor fallback → Adwaita (~/.icons/default/index.theme)"
 fi
 
 # --- fonts ----------------------------------------------------------------------

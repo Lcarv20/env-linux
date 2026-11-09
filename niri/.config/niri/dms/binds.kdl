@@ -73,6 +73,7 @@ binds {
     Mod+U { focus-workspace-down; }
     Mod+WheelScrollDown cooldown-ms=150 { focus-workspace-down; }
     Mod+WheelScrollUp cooldown-ms=150 { focus-workspace-up; }
+    Mod+Alt+F repeat=false { maximize-window-to-edges; }
     Mod+BracketLeft { consume-or-expel-window-left; }
     Mod+BracketRight { consume-or-expel-window-right; }
     Mod+C { center-column; }
@@ -140,11 +141,12 @@ binds {
     Ctrl+Mod+Minus hotkey-overlay-title="Zoom: Out (Keyboard)" { spawn "~/.local/bin/niri-zoomctl" "out"; }
     Ctrl+Mod+Z hotkey-overlay-title="Zoom: Reset" { spawn "~/.local/bin/niri-zoomctl" "reset"; }
     Ctrl+TouchpadScrollDown cooldown-ms=80 hotkey-overlay-title="Zoom: In (Trackpad)" { spawn "~/.local/bin/niri-zoomctl" "in"; }
-    Ctrl+TouchpadScrollUp cooldown-ms=80 hotkey-overlay-title="Zoom: Out (Trackpad)" { spawn "~/.local/bin/niri-zoomctl" "out"; }
-    Ctrl+WheelScrollDown hotkey-overlay-title="Zoom: Out (Mouse Wheel)" cooldown-ms=0 { spawn "~/.local/bin/niri-zoomctl" "out"; }
-    Ctrl+WheelScrollUp cooldown-ms=0 hotkey-overlay-title="Zoom: In (Mouse Wheel)" { spawn "~/.local/bin/niri-zoomctl" "in"; }
+    Ctrl+TouchpadScrollUp hotkey-overlay-title="Zoom: Out (Trackpad)" cooldown-ms=80 { spawn "~/.local/bin/niri-zoomctl" "out"; }
+    Ctrl+WheelScrollDown cooldown-ms=0 hotkey-overlay-title="Zoom: Out (Mouse Wheel)" { spawn "~/.local/bin/niri-zoomctl" "out"; }
+    Ctrl+WheelScrollUp hotkey-overlay-title="Zoom: In (Mouse Wheel)" cooldown-ms=0 { spawn "~/.local/bin/niri-zoomctl" "in"; }
     Mod+B hotkey-overlay-title="Browser: Chrome" { spawn "google-chrome"; }
     Mod+Return hotkey-overlay-title="Open Terminal" { spawn "ghostty"; }
+    Mod+S { spawn "hex" "dictation" "toggle"; }
     Mod+T hotkey-overlay-title="Open Terminal" { spawn "ghostty"; }
     XF86TouchpadToggle repeat=false allow-when-locked=true { spawn "niri" "msg" "action" "toggle-touchpad"; }
     Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }

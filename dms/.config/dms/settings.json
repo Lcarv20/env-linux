@@ -10,6 +10,7 @@
       "showOnLastDisplay": true,
       "position": 1,
       "mode": "compact",
+      "middleClickAction": "close",
       "taskbarAlign": "center",
       "widgetExpansion": "popout",
       "iconSize": 42,
@@ -87,8 +88,8 @@
       "leftWidgets": [
         {
           "id": "launcherButton",
-          "enabled": false,
-          "launcherLogoMode": "apps"
+          "enabled": true,
+          "launcherLogoMode": "os"
         },
         {
           "id": "workspaceSwitcher",
@@ -110,6 +111,10 @@
           "focusedWindowCompactMode": false,
           "focusedWindowShowIcon": true,
           "focusedWindowSize": 1
+        },
+        {
+          "id": "cpuFreq",
+          "enabled": true
         }
       ],
       "centerWidgets": [
@@ -149,16 +154,20 @@
           "enabled": true
         },
         {
+          "id": "dankSoftwareDepot",
+          "enabled": true
+        },
+        {
           "id": "controlCenterButton",
           "enabled": true
         }
       ],
-      "spacing": 4,
-      "innerPadding": 4,
+      "spacing": 0,
+      "innerPadding": 1,
       "bottomGap": 0,
-      "transparency": 1,
+      "transparency": 0.7,
       "widgetTransparency": 1,
-      "squareCorners": false,
+      "squareCorners": true,
       "noBackground": true,
       "gothCornersEnabled": false,
       "gothCornerRadiusOverride": false,
@@ -174,7 +183,7 @@
       "visible": true,
       "popupGapsAuto": true,
       "popupGapsManual": 4,
-      "followInterfaceStyle": true,
+      "followInterfaceStyle": false,
       "widgetFollowInterfaceStyle": true,
       "dot": false,
       "islandNotch": false,
@@ -183,7 +192,7 @@
       "islandNotificationPopups": true,
       "hoverPopouts": false,
       "islandHighContrast": true,
-      "islandPalette": "default",
+      "islandPalette": "dim",
       "islandHomeCompactTight": false,
       "islandSatellitePosition": "edges",
       "widgetStyle": "segments",
@@ -234,18 +243,24 @@
       "islandRoutePowerMenu": "follow",
       "islandInteractionMode": "click",
       "islandRouteLauncher": "follow",
-      "attachToScreenEdge": true,
-      "barLengthMode": "percent",
-      "barInsetPadding": 12,
+      "attachToScreenEdge": false,
+      "barLengthMode": "full",
+      "barInsetPadding": -1,
       "island": false,
       "islandSatelliteBackground": false,
       "islandSatelliteGothCorners": false,
       "islandSatellitesEnabled": true,
-      "maximizeWidgetIcons": true,
-      "maximizeWidgetText": true,
-      "widgetOutlineEnabled": false,
+      "maximizeWidgetIcons": false,
+      "maximizeWidgetText": false,
+      "widgetOutlineEnabled": true,
       "widgetOutlineColor": "primary",
-      "widgetPadding": 8
+      "widgetPadding": 14,
+      "shadowIntensity": 0,
+      "barLengthPercent": 80,
+      "shadowOpacity": 60,
+      "scrollYBehavior": "workspace",
+      "surfaceColor": "default",
+      "iconScale": 1.18
     },
     {
       "id": "dot1793574312245",
@@ -298,7 +313,10 @@
       "popupGapsManual": 4,
       "followInterfaceStyle": false,
       "widgetFollowInterfaceStyle": true,
-      "dot": true
+      "dot": true,
+      "widgetPadding": 8,
+      "islandCompactThickness": 38,
+      "islandSatelliteGap": 12
     }
   ],
   "configVersion": 42,
@@ -332,7 +350,7 @@
   "terminalPalette": "medium",
   "blurLayerOutlineOpacity": 0,
   "radiusMode": "scale",
-  "niriLayoutRadiusOverride": 14,
+  "niriLayoutRadiusOverride": 28,
   "blurBorderEnabled": true,
   "blurBorderOpacity": 0.35,
   "blurBorderColor": "outline",
@@ -394,10 +412,10 @@
     }
   ],
   "displayProfileAutoSelect": true,
-  "niriLayoutBorderSize": 2,
-  "niriLayoutGapsOverride": 24,
+  "niriLayoutBorderSize": 3,
+  "niriLayoutGapsOverride": 28,
   "notificationPopupPosition": 0,
-  "matugenTemplateGhostty": false,
+  "matugenTemplateGhostty": true,
   "matugenTemplateNeovim": false,
   "matugenTemplateVscode": false,
   "matugenTemplateZed": false,
@@ -442,7 +460,9 @@
     }
   },
   "screenPreferences": {
-    "wallpaper": []
+    "wallpaper": [
+      "all"
+    ]
   },
   "niriOverviewLauncherStyle": "full",
   "niriOverviewOverlayEnabled": true,
@@ -458,17 +478,41 @@
       "allowWithoutTrigger": true
     }
   },
-  "floatingWindowSyncGlobal": true,
+  "floatingWindowSyncGlobal": false,
   "notepadShowLineNumbers": true,
   "notepadTransparencyOverride": -1,
   "notepadSlideoutSide": "right",
   "matugenSmartMode": false,
-  "m3ElevationIntensity": 18,
+  "m3ElevationIntensity": 12,
   "m3ElevationOpacity": 30,
   "m3ElevationEnabled": true,
   "dankLauncherV2BorderColor": "primary",
   "nightModeExcludeFullscreen": false,
   "spotlightSectionViewModes": {
     "apps": "grid"
+  },
+  "density": "comfortable",
+  "interfaceStyle": "expressive",
+  "avatarRing": "primary",
+  "barInsetPaddingSyncAll": false,
+  "osdPosition": 5,
+  "floatingWindowTransparency": 1,
+  "floatingWindowForegroundTransparency": 1,
+  "radiusStrength": 100,
+  "batteryMonitorTimeout": 300,
+  "batteryLockTimeout": 600,
+  "batterySuspendTimeout": 900,
+  "appDrawerSectionViewModes": {
+    "apps": "list"
+  },
+  "matugenTemplateNeovimSettings": {
+    "dark": {
+      "baseTheme": "chadracula",
+      "harmony": 0.5
+    },
+    "light": {
+      "baseTheme": "github_light",
+      "harmony": 0.5
+    }
   }
 }

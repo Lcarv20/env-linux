@@ -3,7 +3,7 @@
 #   a) kernel args via grubby (s2idle sleep, macOS backlight quirks, 5K panel)
 #   b) bt-resume-rescue (Bluetooth wakeup wedge fix) as a systemd drop-in
 #   c) DKMS audio module snd_hda_macbookpro
-#   d) Niri outputs.kdl (eDP-1 4K@1.25) + greeter dms.kdl (JuxCursor 37)
+#   d) Niri outputs.kdl (eDP-1 4K@1.25) + greeter dms.kdl (Adwaita 37)
 set -euo pipefail
 
 HOST_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
@@ -88,6 +88,6 @@ run_cmd "outputs.kdl → ~/.config/niri/dms/outputs.kdl (eDP-1 3840x2160@59.997,
 
 install_file 0644 "$HOST_DIR/../../system/greetd/niri/dms-imac18-3.kdl" \
     /etc/greetd/niri/dms.kdl \
-    "greetd dms.kdl → /etc/greetd/niri/dms.kdl (iMac18,3: JuxCursor 37)"
+    "greetd dms.kdl → /etc/greetd/niri/dms.kdl (iMac18,3: Adwaita 37)"
 
 ui_info "iMac18,3 stage complete — REBOOT required for kernel args, DKMS audio and greetd."

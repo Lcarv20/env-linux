@@ -97,18 +97,18 @@ for gtkver in 3.0 4.0; do
     if is_dry_run; then
         ui_dry "GTK $gtkver cursor theme/size → $ini"
     else
-        upsert_ini "$ini" Settings gtk-cursor-theme-name JuxCursor
+        upsert_ini "$ini" Settings gtk-cursor-theme-name Adwaita
         upsert_ini "$ini" Settings gtk-cursor-theme-size 32
-        ui_step "GTK $gtkver cursor: JuxCursor @ 32"
+        ui_step "GTK $gtkver cursor: Adwaita @ 32"
     fi
 done
 
 if is_dry_run; then
     ui_dry "Xcursor.theme/Xcursor.size → ~/.Xresources"
 else
-    upsert_xresource "$HOME/.Xresources" Xcursor.theme JuxCursor
+    upsert_xresource "$HOME/.Xresources" Xcursor.theme Adwaita
     upsert_xresource "$HOME/.Xresources" Xcursor.size 32
-    ui_step "~/.Xresources: Xcursor.theme JuxCursor · Xcursor.size 32"
+    ui_step "~/.Xresources: Xcursor.theme Adwaita · Xcursor.size 32"
 fi
 
 # --- DMS initial state, default palette & cursor color map ---------------------

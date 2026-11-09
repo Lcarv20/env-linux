@@ -4,19 +4,19 @@
 // ! PLACE YOUR CUSTOM CONFIGURATION ELSEWHERE !
 
 layout {
-    gaps 24
+    gaps 28
 
     border {
-        width 2
+        width 3
     }
 
     focus-ring {
-        width 2
+        width 3
     }
 }
 
 window-rule {
-    geometry-corner-radius 14
+    geometry-corner-radius 28
     clip-to-geometry true
     tiled-state true
     draw-border-with-background false
