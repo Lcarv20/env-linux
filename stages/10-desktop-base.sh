@@ -15,9 +15,41 @@ CORE_MANIFEST="$DOTS_ROOT/manifest/dnf-core.txt"
 mapfile -t CORE_PKGS < <(read_manifest "$CORE_MANIFEST")
 ((${#CORE_PKGS[@]} > 0)) || { ui_error "dnf-core.txt is empty"; exit 1; }
 
-ui_info "Installing ${#CORE_PKGS[@]} core packages (niri, dms, pipewire, portals, fonts, …)"
-run_cmd "dnf install core desktop packages (${#CORE_PKGS[@]})" \
-    sudo dnf install -y "${CORE_PKGS[@]}"
+declare -a PKGS_TO_INSTALL=()
+declare -a PKGS_ALREADY_INSTALLED=()
+
+for pkg in "${CORE_PKGS[@]}"; do
+    if rpm -q "$pkg" >/dev/null 2>&1; then
+        PKGS_ALREADY_INSTALLED+=("$pkg")
+    else
+        PKGS_TO_INSTALL+=("$pkg")
+    fi
+done
+
+if ((${#PKGS_ALREADY_INSTALLED[@]} > 0)); then
+    ui_step "${#PKGS_ALREADY_INSTALLED[@]} core packages already installed"
+fi
+
+if ((${#PKGS_TO_INSTALL[@]} == 0)); then
+    ui_step "All core packages are already present on this system"
+else
+    ui_info "Installing ${#PKGS_TO_INSTALL[@]} remaining packages..."
+    if ! run_cmd "dnf install core desktop packages (${#PKGS_TO_INSTALL[@]})" \
+        sudo dnf install -y "${PKGS_TO_INSTALL[@]}"; then
+        ui_warn "Batch package install failed (RPM transaction conflict or file clash)."
+        ui_info "Recovering: installing remaining packages individually to isolate conflicts..."
+        for pkg in "${PKGS_TO_INSTALL[@]}"; do
+            if rpm -q "$pkg" >/dev/null 2>&1; then
+                continue
+            fi
+            if run_cmd "Install $pkg" sudo dnf install -y "$pkg"; then
+                :
+            else
+                ui_warn "Package '$pkg' skipped (transaction/file conflict or package unavailable)."
+            fi
+        done
+    fi
+fi
 
 # --- mise -----------------------------------------------------------------------
 export PATH="$HOME/.local/bin:$PATH"

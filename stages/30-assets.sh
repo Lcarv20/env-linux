@@ -62,14 +62,25 @@ fi
 
 # --- extract --------------------------------------------------------------------
 is_dry_run || { rm -rf "$STAGE_DIR"; mkdir -p "$STAGE_DIR"; }
-run_cmd "Extract tarball (zstd)" tar -x --zstd -f "$TARBALL" -C "$STAGE_DIR"
+run_cmd "Extract tarball (zstd)" tar -x --zstd -f "$TARBALL" -C "$STAGE_DIR" \
+    || ui_warn "Extraction returned non-zero — checking if files were extracted..."
 
 # --- wallpapers -----------------------------------------------------------------
 if [[ -d "$STAGE_DIR/wallpapers" ]]; then
     copy_tree "$STAGE_DIR/wallpapers" "$HOME/Pictures/Walpapers" \
         "Install wallpapers → ~/Pictures/Walpapers/"
-    run_cmd "Link ~/Pictures/Wallpapers → ~/Pictures/Walpapers" \
-        ln -sfn Walpapers "$HOME/Pictures/Wallpapers"
+    
+    if [[ -L "$HOME/Pictures/Wallpapers" ]]; then
+        ui_step "~/Pictures/Wallpapers symlink already configured"
+    elif [[ -d "$HOME/Pictures/Wallpapers" ]]; then
+        ui_info "~/Pictures/Wallpapers exists as a physical directory; merging wallpapers..."
+        copy_tree "$STAGE_DIR/wallpapers" "$HOME/Pictures/Wallpapers" \
+            "Merge wallpapers → ~/Pictures/Wallpapers/"
+    else
+        run_cmd "Link ~/Pictures/Wallpapers → ~/Pictures/Walpapers" \
+            ln -sfn Walpapers "$HOME/Pictures/Wallpapers" \
+            || ui_warn "Could not create ~/Pictures/Wallpapers symlink."
+    fi
 else
     ui_warn "No wallpapers/ in tarball — skipped."
 fi
@@ -110,7 +121,8 @@ if [[ -d "$STAGE_DIR/dfiles-shell" ]]; then
     copy_tree "$STAGE_DIR/dfiles-shell" "$HOME/.config/dfiles-shell" \
         "Install dfiles-shell → ~/.config/dfiles-shell/"
     run_cmd "Apply dfiles-shell patches (Theme.qml · ChooserWindow.qml)" \
-        bash "$DOTS_ROOT/system/dfiles-patch/apply-dfiles-patch.sh"
+        bash "$DOTS_ROOT/system/dfiles-patch/apply-dfiles-patch.sh" \
+        || ui_warn "dfiles-shell patches could not be applied — continuing."
 else
     ui_warn "No dfiles-shell/ in tarball — skipped (patch step too)."
 fi

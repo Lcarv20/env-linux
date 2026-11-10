@@ -35,9 +35,12 @@ if [[ -f "$MANIFEST" ]]; then
             run_cmd "Update plugin $folder (git pull --ff-only)" \
                 git -C "$target" pull --ff-only \
                 || ui_warn "Could not fast-forward $folder — keeping existing local checkout."
+        elif [[ -d "$target" ]]; then
+            ui_info "$target already exists (non-git) — keeping as is."
         else
             run_cmd "Clone plugin $folder ($repo)" \
-                git clone "$repo" "$target"
+                git clone "$repo" "$target" \
+                || ui_warn "Could not clone $repo — skipping $folder."
         fi
 
         # If a Makefile exists and bin/ is empty or missing, build it
@@ -47,8 +50,22 @@ if [[ -f "$MANIFEST" ]]; then
                 || ui_warn "make failed in $folder — daemon will compile on first run if Go is present."
         fi
 
-        run_cmd "Symlink $folder → ~/.config/dms/plugins/${link_name:-$folder}" \
-            ln -sfn "$target" "$link_target"
+        if [[ -L "$link_target" ]]; then
+            current_dest="$(readlink -f "$link_target" 2>/dev/null || true)"
+            if [[ "$current_dest" == "$target" ]]; then
+                ui_step "Plugin symlink $folder already points to $target"
+            else
+                run_cmd "Update plugin symlink $folder → $target" \
+                    ln -sfn "$target" "$link_target" \
+                    || ui_warn "Could not update symlink for $folder."
+            fi
+        elif [[ -d "$link_target" ]]; then
+            ui_warn "$link_target already exists as a physical directory (not a symlink) — leaving untouched to prevent data loss."
+        else
+            run_cmd "Symlink $folder → ~/.config/dms/plugins/${link_name:-$folder}" \
+                ln -sfn "$target" "$link_target" \
+                || ui_warn "Could not symlink $folder."
+        fi
     done < "$MANIFEST"
 fi
 

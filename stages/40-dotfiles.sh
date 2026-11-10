@@ -49,12 +49,13 @@ for pkg in "${STOW_PKGS[@]}"; do
 
     run_cmd "stow --no-folding $pkg ($(pkg_description "$pkg"))" \
         stow --dir="$DOTS_ROOT" --target="$HOME" --no-folding -S "$pkg" \
-        || { ui_warn "stow $pkg failed — see $LOG_FILE"; stow_failures=$((stow_failures + 1)); }
+        || { ui_warn "stow $pkg reported conflict(s) — existing configs preserved; see $LOG_FILE"; stow_failures=$((stow_failures + 1)); }
 done
 
 if ((stow_failures > 0)); then
-    ui_error "$stow_failures stow package(s) failed — resolve conflicts and re-run this stage."
-    exit 1
+    ui_warn "$stow_failures stow package(s) reported conflicts. Your existing files were preserved."
+else
+    ui_step "All desktop dotfiles stowed successfully"
 fi
 
 # If installed under a username other than lcarv, rewrite DFILES_SHELL_DIR in niri config.kdl.

@@ -269,8 +269,15 @@ for stage in "${RUN_STAGES[@]}"; do
     else
         FAIL_STAGES+=("$stage")
         FAILED=true
-        ui_error "Stage $stage FAILED — stopping (nothing after it was run)."
-        break
+        ui_warn "Stage $stage reported errors or warnings (see $LOG_FILE)."
+        if [[ "$ASSUME_YES" != "true" ]]; then
+            if ! ui_confirm "Continue with the remaining stages?"; then
+                ui_info "Installation stopped after $stage."
+                break
+            fi
+        else
+            ui_info "Continuing with remaining stages (--yes mode)..."
+        fi
     fi
 done
 

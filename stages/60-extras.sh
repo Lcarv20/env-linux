@@ -18,8 +18,19 @@ ensure_sudo
 DNF_EXTRAS_MANIFEST="$DOTS_ROOT/manifest/dnf-extras.txt"
 if [[ -f "$DNF_EXTRAS_MANIFEST" ]]; then
     mapfile -t XPKGS < <(read_manifest "$DNF_EXTRAS_MANIFEST")
-    ((${#XPKGS[@]} > 0)) && run_cmd "dnf install extras (${#XPKGS[@]})" \
-        sudo dnf install -y "${XPKGS[@]}"
+    to_install_xpkgs=()
+    for pkg in "${XPKGS[@]}"; do
+        if rpm -q "$pkg" >/dev/null 2>&1; then
+            ui_step "Extra package $pkg already installed"
+        else
+            to_install_xpkgs+=("$pkg")
+        fi
+    done
+    if ((${#to_install_xpkgs[@]} > 0)); then
+        run_cmd "dnf install extras (${#to_install_xpkgs[@]})" \
+            sudo dnf install -y "${to_install_xpkgs[@]}" \
+            || ui_warn "Could not install some extras — continuing."
+    fi
 fi
 
 # --- mise language runtimes --------------------------------------------------------

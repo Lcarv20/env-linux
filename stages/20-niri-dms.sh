@@ -22,9 +22,8 @@ if is_dry_run; then
         ui_dry "all desktop binaries present (${REQUIRED_BINARIES[*]})"
     fi
 elif ((${#missing[@]})); then
-    ui_error "Missing required binaries: ${missing[*]}"
-    ui_info "Run stages 00-repos.sh and 10-desktop-base.sh first, then retry."
-    exit 1
+    ui_warn "Some desktop binaries are currently missing: ${missing[*]}"
+    ui_info "You may need to inspect why they didn't install, but continuing with configuration."
 else
     ui_step "niri · dms · dms-greeter · dfiles · matugen · wtype all installed"
 fi

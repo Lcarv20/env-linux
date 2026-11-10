@@ -15,8 +15,13 @@ ensure_sudo
 # --- Chrome managed-policies dir -------------------------------------------------
 # dms-chrome-theme writes color.json here to dynamically match Chrome's theme
 # to the current Matugen wallpaper palette without requiring root permissions.
-run_cmd "Chrome managed policy dir for autotheming (/etc/opt/chrome/policies/managed, 0775)" \
-    sudo install -d -o root -g "$USER" -m 0775 /etc/opt/chrome/policies/managed
+if [[ -d /etc/opt/chrome/policies/managed ]]; then
+    ui_step "Chrome managed policy dir already exists (/etc/opt/chrome/policies/managed)"
+else
+    run_cmd "Chrome managed policy dir for autotheming (/etc/opt/chrome/policies/managed, 0775)" \
+        sudo install -d -o root -g "$USER" -m 0775 /etc/opt/chrome/policies/managed \
+        || ui_warn "Could not create Chrome managed policies dir."
+fi
 
 # --- greetd & dms-greeter -------------------------------------------------------
 if getent passwd greeter >/dev/null 2>&1; then
@@ -24,8 +29,12 @@ if getent passwd greeter >/dev/null 2>&1; then
         sudo usermod -aG video,render greeter || true
 fi
 if getent group greeter >/dev/null 2>&1; then
-    run_cmd "Add $USER to greeter group" \
-        sudo usermod -aG greeter "$USER" || true
+    if id -nG "$USER" 2>/dev/null | grep -qw greeter; then
+        ui_step "$USER already member of greeter group"
+    else
+        run_cmd "Add $USER to greeter group" \
+            sudo usermod -aG greeter "$USER" || true
+    fi
 fi
 
 if have dms-greeter; then
@@ -51,9 +60,14 @@ install_file 0644 "$DMS_KDL" /etc/greetd/niri/dms.kdl \
     "greetd dms.kdl → /etc/greetd/niri/dms.kdl (profile: $HOST_PROFILE)"
 
 # Greeter cache dir used by `dms-greeter --cache-dir`.
-run_cmd "Create /var/cache/dms-greeter (user greeter)" \
-    sudo install -d -o greeter -g greeter -m 0750 /var/cache/dms-greeter \
-    || run_cmd "Create /var/cache/dms-greeter (plain)" sudo mkdir -p /var/cache/dms-greeter
+if [[ -d /var/cache/dms-greeter ]]; then
+    ui_step "Greeter cache dir already exists (/var/cache/dms-greeter)"
+else
+    run_cmd "Create /var/cache/dms-greeter (user greeter)" \
+        sudo install -d -o greeter -g greeter -m 0750 /var/cache/dms-greeter \
+        || run_cmd "Create /var/cache/dms-greeter (plain)" sudo mkdir -p /var/cache/dms-greeter \
+        || ui_warn "Could not create /var/cache/dms-greeter."
+fi
 
 # --- display managers -------------------------------------------------------------
 for dm in gdm sddm; do
@@ -62,7 +76,12 @@ for dm in gdm sddm; do
     fi
 done
 
-run_cmd "Enable greetd.service" sudo systemctl enable greetd.service
+if systemctl is-enabled greetd.service >/dev/null 2>&1; then
+    ui_step "greetd.service already enabled"
+else
+    run_cmd "Enable greetd.service" sudo systemctl enable greetd.service \
+        || ui_warn "Could not enable greetd.service."
+fi
 run_cmd "Set default target → graphical.target" sudo systemctl set-default graphical.target
 
 # --- systemd user units -----------------------------------------------------------

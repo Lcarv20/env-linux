@@ -193,10 +193,14 @@ run_cmd() { # run_cmd DESCRIPTION COMMAND [ARGS...]
 install_file() {
     local mode="$1" src="$2" dest="$3"
     local desc="${4:-$(basename "$src") → $dest}"
+    if [[ -f "$dest" ]] && cmp -s "$src" "$dest" 2>/dev/null; then
+        ui_step "$desc (already up to date)"
+        return 0
+    fi
     local -a cmd=(install -Dm "$mode" "$src" "$dest")
     case "$dest" in
-        /etc/*|/usr/*|/opt/*|/var/*) run_cmd "$desc" sudo "${cmd[@]}" ;;
-        *)                           run_cmd "$desc" "${cmd[@]}" ;;
+        /etc/*|/usr/*|/opt/*|/var/*) run_cmd "$desc" sudo "${cmd[@]}" || ui_warn "Could not install $dest — continuing." ;;
+        *)                           run_cmd "$desc" "${cmd[@]}" || ui_warn "Could not install $dest — continuing." ;;
     esac
 }
 

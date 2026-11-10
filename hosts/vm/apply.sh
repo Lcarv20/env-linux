@@ -15,8 +15,13 @@ ensure_sudo
 VIRT="$(systemd-detect-virt 2>/dev/null || true)"
 
 if [[ "$VIRT" =~ ^(qemu|kvm)$ ]]; then
-    run_cmd "Install qemu-guest-agent + spice-vdagent" \
-        sudo dnf install -y qemu-guest-agent spice-vdagent
+    if rpm -q qemu-guest-agent >/dev/null 2>&1 && rpm -q spice-vdagent >/dev/null 2>&1; then
+        ui_step "qemu-guest-agent and spice-vdagent already installed"
+    else
+        run_cmd "Install qemu-guest-agent + spice-vdagent" \
+            sudo dnf install -y qemu-guest-agent spice-vdagent \
+            || ui_warn "Could not install VM guest agents — continuing."
+    fi
     run_cmd "Enable qemu-guest-agent.service" \
         sudo systemctl enable --now qemu-guest-agent.service \
         || ui_warn "Could not enable qemu-guest-agent.service."

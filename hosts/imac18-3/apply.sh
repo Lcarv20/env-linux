@@ -52,10 +52,16 @@ if have dkms; then
     done
 
     if [[ -z "$SRC" ]]; then
-        run_cmd "Clone snd_hda_macbookpro (davidjo)" \
-            sudo git clone --depth=1 https://github.com/davidjo/snd_hda_macbookpro.git \
-                /usr/src/snd_hda_macbookpro-git
-        SRC="/usr/src/snd_hda_macbookpro-git"
+        if [[ -d /usr/src/snd_hda_macbookpro-git ]]; then
+            SRC="/usr/src/snd_hda_macbookpro-git"
+            ui_step "Using existing /usr/src/snd_hda_macbookpro-git"
+        else
+            run_cmd "Clone snd_hda_macbookpro (davidjo)" \
+                sudo git clone --depth=1 https://github.com/davidjo/snd_hda_macbookpro.git \
+                    /usr/src/snd_hda_macbookpro-git \
+                || ui_warn "Could not clone snd_hda_macbookpro."
+            SRC="/usr/src/snd_hda_macbookpro-git"
+        fi
     fi
 
     MOD_NAME="$(sed -n 's/^PACKAGE_NAME="\(.*\)"/\1/p'  "$SRC/dkms.conf" 2>/dev/null | head -1)"
