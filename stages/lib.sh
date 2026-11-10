@@ -102,46 +102,178 @@ ui_confirm() { # ui_confirm PROMPT -> rc 0 = yes
     fi
     if [[ -n "$GUM_BIN" && -t 0 && -t 1 ]]; then
         gum confirm "$*"
-    else
-        local reply=""
-        read -r -p "$* [y/N]: " reply || return 1
-        [[ "$reply" =~ ^[Yy]$ ]]
+        return
     fi
+    local ans
+    ans="$(ui_choose "$*" "Yes — proceed" "No — abort / skip")" || return 1
+    [[ "$ans" == "Yes — proceed" ]]
 }
 
 ui_choose() { # ui_choose PROMPT opt1 opt2... -> echoes picked option
     local prompt="$1"; shift
     if [[ -n "$GUM_BIN" && -t 0 && -t 1 ]]; then
         gum choose --header "$prompt" "$@"
-    else
-        local i=1 opt pick
-        printf '%s\n' "$prompt" >&2
-        for opt in "$@"; do printf '  %2d) %s\n' "$i" "$opt" >&2; i=$((i+1)); done
-        while :; do
-            read -r -p "Select 1-$#: " pick >&2 || return 1
-            if [[ "$pick" =~ ^[0-9]+$ ]] && (( pick >= 1 && pick <= $# )); then break; fi
-        done
-        local -a opts=("$@")
-        printf '%s\n' "${opts[pick-1]}"
+        return
     fi
+
+    local -a opts=("$@")
+    local count=${#opts[@]}
+    local selected=0
+    local key rest
+
+    # Non-interactive / piped fallback
+    if [[ ! -t 0 || ! -t 1 ]]; then
+        local line
+        if read -r line 2>/dev/null; then
+            for opt in "${opts[@]}"; do
+                [[ "$opt" == "$line" ]] && { printf '%s\n' "$opt"; return 0; }
+            done
+        fi
+        printf '%s\n' "${opts[0]}"
+        return 0
+    fi
+
+    printf '\e[?25l' >&2
+    trap 'printf "\e[?25h" >&2' RETURN INT TERM
+
+    printf '%s\n' "$prompt" >&2
+    for ((i=0; i<count; i++)); do
+        if (( i == selected )); then
+            printf '  %s●%s %s%s%s\n' "$C_CYN" "$C_RST" "$C_BLD" "${opts[i]}" "$C_RST" >&2
+        else
+            printf '  %s○ %s%s\n' "$C_GRY" "${opts[i]}" "$C_RST" >&2
+        fi
+    done
+
+    while :; do
+        IFS= read -rsn1 key
+        if [[ "$key" == $'\e' ]]; then
+            read -rsn2 -t 0.05 rest || rest=""
+            key+="$rest"
+        fi
+
+        case "$key" in
+            $'\e[A'|k|K) # Up
+                (( selected > 0 )) && (( selected-- )) || selected=$(( count - 1 ))
+                ;;
+            $'\e[B'|j|J) # Down
+                (( selected < count - 1 )) && (( selected++ )) || selected=0
+                ;;
+            "") # Enter
+                break
+                ;;
+            [1-9])
+                local num=$(( key - 1 ))
+                if (( num >= 0 && num < count )); then
+                    selected=$num
+                    break
+                fi
+                ;;
+            q|Q)
+                return 1
+                ;;
+        esac
+
+        printf '\e[%dA' "$count" >&2
+        for ((i=0; i<count; i++)); do
+            printf '\e[2K' >&2
+            if (( i == selected )); then
+                printf '  %s●%s %s%s%s\n' "$C_CYN" "$C_RST" "$C_BLD" "${opts[i]}" "$C_RST" >&2
+            else
+                printf '  %s○ %s%s\n' "$C_GRY" "${opts[i]}" "$C_RST" >&2
+            fi
+        done
+    done
+
+    printf '\e[?25h' >&2
+    trap - RETURN INT TERM
+    printf '%s\n' "${opts[selected]}"
 }
 
 ui_choose_multi() { # ui_choose_multi PROMPT opt1 opt2... -> one pick per line
     local prompt="$1"; shift
     if [[ -n "$GUM_BIN" && -t 0 && -t 1 ]]; then
         gum choose --no-limit --header "$prompt" "$@"
-    else
-        local i=1 opt line n
-        printf '%s\n' "$prompt" >&2
-        for opt in "$@"; do printf '  %2d) %s\n' "$i" "$opt" >&2; i=$((i+1)); done
-        read -r -p "Enter numbers (space separated, e.g. 1 3 5): " line >&2 || return 1
-        local -a opts=("$@") sel=()
-        # shellcheck disable=SC2206
-        for n in $line; do
-            [[ "$n" =~ ^[0-9]+$ ]] && (( n >= 1 && n <= $# )) && sel+=("${opts[n-1]}")
+        return
+    fi
+
+    local -a opts=("$@")
+    local count=${#opts[@]}
+    local selected=0
+    local key rest
+    local -a marked=()
+    for ((i=0; i<count; i++)); do marked[i]=0; done
+
+    # Non-interactive / piped fallback
+    if [[ ! -t 0 || ! -t 1 ]]; then
+        printf '%s\n' "${opts[@]}"
+        return 0
+    fi
+
+    printf '\e[?25l' >&2
+    trap 'printf "\e[?25h" >&2' RETURN INT TERM
+
+    printf '%s %s(Use arrows, Space to toggle, Enter to confirm)%s\n' "$prompt" "$C_GRY" "$C_RST" >&2
+    for ((i=0; i<count; i++)); do
+        local check="[ ]"
+        (( marked[i] )) && check="[✔]"
+        if (( i == selected )); then
+            printf '  %s%s %s%s%s\n' "$C_CYN" "$check" "$C_BLD" "${opts[i]}" "$C_RST" >&2
+        else
+            printf '  %s%s %s%s\n' "$C_GRY" "$check" "${opts[i]}" "$C_RST" >&2
+        fi
+    done
+
+    while :; do
+        IFS= read -rsn1 key
+        if [[ "$key" == $'\e' ]]; then
+            read -rsn2 -t 0.05 rest || rest=""
+            key+="$rest"
+        fi
+
+        case "$key" in
+            $'\e[A'|k|K)
+                (( selected > 0 )) && (( selected-- )) || selected=$(( count - 1 ))
+                ;;
+            $'\e[B'|j|J)
+                (( selected < count - 1 )) && (( selected++ )) || selected=0
+                ;;
+            " ") # Space toggles
+                (( marked[selected] = 1 - marked[selected] ))
+                ;;
+            "") # Enter confirms
+                break
+                ;;
+            q|Q)
+                return 1
+                ;;
+        esac
+
+        printf '\e[%dA' "$count" >&2
+        for ((i=0; i<count; i++)); do
+            printf '\e[2K' >&2
+            local check="[ ]"
+            (( marked[i] )) && check="[✔]"
+            if (( i == selected )); then
+                printf '  %s%s %s%s%s\n' "$C_CYN" "$check" "$C_BLD" "${opts[i]}" "$C_RST" >&2
+            else
+                printf '  %s%s %s%s\n' "$C_GRY" "$check" "${opts[i]}" "$C_RST" >&2
+            fi
         done
-        ((${#sel[@]} > 0)) || return 1
-        printf '%s\n' "${sel[@]}"
+    done
+
+    printf '\e[?25h' >&2
+    trap - RETURN INT TERM
+
+    local any=0
+    for ((i=0; i<count; i++)); do
+        if (( marked[i] )); then
+            printf '%s\n' "${opts[i]}"
+            any=1
+        fi
+    done
+    if (( any == 0 )); then
+        printf '%s\n' "${opts[selected]}"
     fi
 }
 
