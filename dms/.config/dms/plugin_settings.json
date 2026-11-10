@@ -30,7 +30,7 @@
   "dankSoftwareDepot": {
     "enabled": true,
     "updatesSnapshot": {
-      "ts": 1794276843,
+      "ts": 1794277593,
       "packages": [
         {
           "name": "bluez.x86_64",

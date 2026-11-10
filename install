@@ -36,7 +36,7 @@ Examples:
 
 Stages:
   00-repos        RPM Fusion, Terra, COPRs (DMS & DankLinux)
-  10-desktop-base Core desktop packages (~72 dnf pkgs, mise CLI tools, zsh)
+  10-desktop-base Core desktop packages (PipeWire audio, portals, fonts, toolkits, mise CLI tools, zsh)
   20-niri-dms     Verify Niri & DMS binaries, clean legacy paths
   30-assets       56 wallpapers, fonts, JuxCursor, dfiles-shell, zoom daemons
   35-plugins      DMS plugins (restore 5 registry plugins, clone & link custom repos)
@@ -148,7 +148,7 @@ fi
 stage_description() {
     case "$1" in
         00-repos.sh)        echo "Enable package repositories (RPM Fusion Free/Nonfree, Terra, and COPRs for DMS/Dux)" ;;
-        10-desktop-base.sh) echo "Install core desktop packages (~72 dnf packages, mise CLI tools, antidote, zsh)" ;;
+        10-desktop-base.sh) echo "Install core desktop packages (PipeWire audio, portals, fonts, toolkits, mise CLI tools, antidote, zsh)" ;;
         20-niri-dms.sh)     echo "Verify Niri compositor & DMS binaries, and clean legacy strays" ;;
         30-assets.sh)       echo "Download & install env-assets-v1 (56 wallpapers, fonts, JuxCursor, dfiles-shell, zoom daemons)" ;;
         35-plugins.sh)      echo "Install DMS plugins (restore 5 registry plugins from lockfile, clone & link custom repos)" ;;

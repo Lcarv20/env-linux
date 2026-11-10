@@ -1,31 +1,17 @@
-# Core packages: everything a naked Fedora Server / Minimal install needs
-# for a complete working Wayland + Niri + Dux Shell desktop.
+# Core desktop packages for Fedora Minimal/Server to support Wayland + Audio + Hardware.
+# NOTE: The Niri compositor and Dux Shell stack (dms, dms-greeter, dux-files,
+# dux-calendar, quickshell, matugen, greetd) are provided by the official
+# upstream installer (`curl -fsSL https://install.duxlabs.dev | sh`) and must NOT
+# be duplicated here to avoid package renaming/file conflicts.
+#
 # One package per line. Lines starting with # and blank lines are ignored.
 
-# --- Niri + Dux Shell ---
-niri
-xwayland-satellite
-dms
-dms-cli
-dms-greeter
-dux-files
-danksearch
-dankcalendar
-quickshell
-matugen
-acl
-
-# --- Graphical apps & helpers ---
-ghostty
+# --- Wayland tools & helpers ---
 wtype
 wl-clipboard
 cliphist
 
-# --- Login / greeter ---
-greetd
-greetd-selinux
-
-# --- Graphics (GL / Vulkan) ---
+# --- Graphics (GL / Vulkan / Hardware Acceleration) ---
 mesa-dri-drivers
 mesa-vulkan-drivers
 mesa-va-drivers
@@ -77,7 +63,7 @@ google-noto-emoji-fonts
 google-noto-color-emoji-fonts
 jetbrains-mono-fonts
 
-# --- Base CLI / build ---
+# --- Base CLI / build tools ---
 zsh
 stow
 git
