@@ -10,7 +10,7 @@ installer) so each track can evolve independently.
 ## 🚀 Quick start (Fedora Server / Minimal VM)
 
 ```bash
-git clone <this-repo> ~/env-linux
+git clone https://github.com/Lcarv20/env-linux/ ~/env-linux
 cd ~/env-linux
 ./install
 ```
