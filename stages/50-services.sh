@@ -1,26 +1,20 @@
 #!/bin/bash
 # stages/50-services.sh — system + user services:
-#   • /etc/opt/chrome/policies/managed (group-writable for dms-chrome-theme autotheming)
 #   • greetd config (dms-greeter, lock screen power buttons, niri config.kdl)
 #   • disable conflicting DMs, enable greetd, graphical.target
 #   • enable systemd --user units (dux-cycle-radius, niri-zoomd, dms)
 set -euo pipefail
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
-ui_header "50 · Services (chrome autotheme policy · greetd · user units)"
+ui_header "50 · Services (greetd · display manager · user units)"
 
 resolve_host_profile
 ensure_sudo
 
-# --- Chrome managed-policies dir -------------------------------------------------
-# dms-chrome-theme writes color.json here to dynamically match Chrome's theme
-# to the current Matugen wallpaper palette without requiring root permissions.
-if [[ -d /etc/opt/chrome/policies/managed ]]; then
-    ui_step "Chrome managed policy dir already exists (/etc/opt/chrome/policies/managed)"
-else
-    run_cmd "Chrome managed policy dir for autotheming (/etc/opt/chrome/policies/managed, 0775)" \
-        sudo install -d -o root -g "$USER" -m 0775 /etc/opt/chrome/policies/managed \
-        || ui_warn "Could not create Chrome managed policies dir."
+# Ensure Chrome policy dir exists for dms-chrome-theme plugin
+# (Created by dots-linux/setup; fallback here if needed)
+if [[ ! -d /etc/opt/chrome/policies/managed ]]; then
+    sudo install -d -o root -g "$USER" -m 0775 /etc/opt/chrome/policies/managed 2>/dev/null || true
 fi
 
 # --- greetd & dms-greeter -------------------------------------------------------
