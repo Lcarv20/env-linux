@@ -12,7 +12,7 @@ It is intentionally **separate** from `~/dots-linux`, which holds only
 portable dev-tool dotfiles (nvim, zsh, ghostty, …).
 
 ```
-install              Executable TUI entry point (gum-based, pure-bash fallback)
+install              Executable TUI entry point (pure bash, no deps; prompts on /dev/tty)
 manifest/            Package lists: copr, dnf-core, dnf-extras, flatpak-extras,
                      mise-core, mise-extras — single source of truth.
 stages/              Numbered installer stages (00-repos → 90-hardware);

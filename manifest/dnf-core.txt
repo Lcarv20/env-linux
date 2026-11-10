@@ -78,6 +78,5 @@ gcc
 make
 ncurses
 
-# --- Eye candy / installer UI ---
+# --- Eye candy ---
 fastfetch
-gum

@@ -49,7 +49,7 @@ args, DKMS audio, Bluetooth resume rescue. These already live in
 numbered stages, host profiles, dry-run, idempotency rules in AGENTS.md).
 Real cruft found, all small and listed in §5.
 
-- `install` — gum TUI (pure-bash fallback), flags: `--dry-run --yes
+- `install` — pure-bash TUI, flags: `--dry-run --yes
   --profile=minimal|full|custom --host=auto --with-extras --with-mango`.
   Asks only 2 questions today (profile + confirm) — **not** the step-by-step
   y/N experience you want (decided: §6.2).
@@ -205,7 +205,7 @@ The installer always walks step by step:
    `Yes to all — don't ask again this run` (also available as the `--yes`
    flag), so a VM test run is one keypress instead of ~40 confirms.
 4. Per stage: a 2–4 line plain-language summary of exactly what it will do,
-   then `gum confirm` (skipped under yes-to-all). Inside stages, `run_cmd`
+   then a Run/Skip/Quit prompt (skipped under yes-to-all). Inside stages, `run_cmd`
    already narrates every mutating command ("Creating wallpapers folder
    ~/Pictures/Walpapers …").
 

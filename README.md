@@ -16,7 +16,7 @@ cd ~/env-linux
 ```
 
 The installer detects your hardware (iMac18,3 vs VM vs generic), shows a plan
-(gum TUI), and runs the stages. Reboot when it finishes → you land in
+(pure-bash TUI), and runs the stages. Reboot when it finishes → you land in
 **greetd → dms-greeter → Niri**.
 
 ```bash

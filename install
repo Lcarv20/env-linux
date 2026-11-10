@@ -100,32 +100,13 @@ else
         || ui_warn "--host=$HOST_PROFILE overrides detected hardware ($DETECTED_HOST)."
 fi
 
-# ----------------------------------------------------------- gum bootstrap ---
-if ! have gum && ! is_dry_run; then
-    ui_warn "gum not found — bootstrapping via dnf (needs sudo)…"
-    if sudo dnf install -y gum; then
-        GUM_BIN="$(command -v gum 2>/dev/null || true)"
-        ui_step "gum bootstrapped"
-    else
-        ui_warn "gum bootstrap failed — continuing with pure-bash UI fallback."
-    fi
-elif ! have gum && is_dry_run; then
-    ui_info "dry-run: not bootstrapping gum; pure-bash UI fallback in effect."
-fi
-
 # ---------------------------------------------------------------- banner -----
-if [[ -n "$GUM_BIN" && -t 1 ]]; then
-    gum style --foreground 212 --border-foreground 212 --border double \
-        --padding '1 4' --margin '0 1' --align center --bold \
-        "env-linux" "Fedora → Niri + Dux Shell"
-else
-    printf '\n%s%s%s\n' "$C_BLD$C_MAG" "══════════════════════════════════════" "$C_RST"
-    printf '  %senv-linux%s — Fedora → Niri + Dux Shell\n' "$C_BLD" "$C_RST"
-    printf '%s%s%s\n\n' "$C_BLD$C_MAG" "══════════════════════════════════════" "$C_RST"
-fi
+printf '\n %s╭──────────────────────────────────────────╮%s\n' "$C_MAG" "$C_RST"
+printf ' %s│%s  %senv-linux%s  ·  Fedora → Niri + Dux Shell %s│%s\n' "$C_MAG" "$C_RST" "$C_BLD" "$C_RST" "$C_MAG" "$C_RST"
+printf ' %s╰──────────────────────────────────────────╯%s\n\n' "$C_MAG" "$C_RST"
 
-ui_info "Hardware : ${DMI_PRODUCT} (virt: ${VIRT:-none})"
-ui_info "Host     : $HOST_PROFILE (detection said: $DETECTED_HOST)"
+VIRT_NOTE=""; [[ -n "$VIRT" && "$VIRT" != none ]] && VIRT_NOTE=" (virt: $VIRT)"
+ui_info "Machine: ${DMI_PRODUCT}${VIRT_NOTE} · host profile: ${C_BLD}$HOST_PROFILE${C_RST}"
 
 # -------------------------------------------------------- preflight / dux -----
 check_dux_installed() {
@@ -145,19 +126,35 @@ else
 fi
 
 # ---------------------------------------------------------------- stages -----
+stage_title() {
+    case "$1" in
+        00-repos.sh)        echo "Repositories" ;;
+        10-desktop-base.sh) echo "Desktop base" ;;
+        20-niri-dms.sh)     echo "Niri + Dux Shell check" ;;
+        30-assets.sh)       echo "Assets" ;;
+        35-plugins.sh)      echo "DMS plugins" ;;
+        40-dotfiles.sh)     echo "Dotfiles" ;;
+        45-own-software.sh) echo "Own software" ;;
+        50-services.sh)     echo "Services" ;;
+        60-extras.sh)       echo "Extras" ;;
+        90-hardware.sh)     echo "Hardware quirks ($HOST_PROFILE)" ;;
+        *)                  echo "${1%.sh}" ;;
+    esac
+}
+
 stage_description() {
     case "$1" in
-        00-repos.sh)        echo "Enable package repositories (RPM Fusion Free/Nonfree, Terra, and COPRs for DMS/Dux)" ;;
-        10-desktop-base.sh) echo "Install core desktop packages (PipeWire audio, portals, fonts, toolkits, mise CLI tools, antidote, zsh)" ;;
-        20-niri-dms.sh)     echo "Verify Niri compositor & DMS binaries, and clean legacy strays" ;;
-        30-assets.sh)       echo "Download & install env-assets-v1 (56 wallpapers, fonts, JuxCursor, dfiles-shell, zoom daemons)" ;;
-        35-plugins.sh)      echo "Install DMS plugins (restore 5 registry plugins from lockfile, clone & link custom repos)" ;;
-        40-dotfiles.sh)     echo "Stow desktop dotfiles: portals (file-picker pin & mime defaults), environment.d (Wayland flags & dynamic cursor), systemd-user (radius cycler & zoom daemon), scripts" ;;
-        45-own-software.sh) echo "Clone and build personal software (web-app-installer: turn websites into desktop apps)" ;;
-        50-services.sh)     echo "Configure greetd display manager (dms-greeter), graphical session, and user systemd units" ;;
-        60-extras.sh)       echo "Install optional extras (clang, mise language runtimes, Keychron fn-mode udev rule)" ;;
-        90-hardware.sh)     echo "Apply hardware quirks (iMac: 5K Retina video, audio DKMS, BT rescue; VM: guest agents)" ;;
-        *)                  echo "Execute $1" ;;
+        00-repos.sh)        echo "RPM Fusion (free/nonfree), Terra, Dux COPR" ;;
+        10-desktop-base.sh) echo "PipeWire, portals, fonts, toolkits, mise CLI tools, antidote, zsh" ;;
+        20-niri-dms.sh)     echo "Verify niri / dms / greeter binaries, remove legacy strays" ;;
+        30-assets.sh)       echo "Wallpapers, fonts, JuxCursor, dfiles-shell, zoom daemons" ;;
+        35-plugins.sh)      echo "Restore registry plugins from lockfile, link custom plugin repos" ;;
+        40-dotfiles.sh)     echo "Stow niri, dms, portals, environment.d, systemd-user, scripts" ;;
+        45-own-software.sh) echo "web-app-installer (websites → desktop apps)" ;;
+        50-services.sh)     echo "greetd + dms-greeter, graphical target, user systemd units" ;;
+        60-extras.sh)       echo "clang, mise language runtimes, Keychron udev rule" ;;
+        90-hardware.sh)     echo "iMac: 5K kernel args, audio DKMS, BT rescue · VM: guest agents" ;;
+        *)                  echo "Run $1" ;;
     esac
 }
 
@@ -188,34 +185,30 @@ if [[ "$PROFILE" == "custom" ]]; then
         ((${#RUN_STAGES[@]} > 0)) || { ui_error "No stages selected."; exit 1; }
     fi
 elif [[ "$ASSUME_YES" != "true" ]]; then
-    EXEC_MODE="$(ui_choose "How would you like to run the installer?" \
-        "guided — step-by-step confirmation with narration" \
-        "yes to all — run all stages automatically without prompting")" || { ui_info "Aborted."; exit 0; }
-    [[ "$EXEC_MODE" =~ "yes to all" ]] && ASSUME_YES=true
+    EXEC_MODE="$(ui_choose "How should the installer run?" \
+        "Guided — confirm each stage" \
+        "Automatic — run every stage without asking")" || { ui_info "Aborted."; exit 0; }
+    [[ "$EXEC_MODE" == Automatic* ]] && ASSUME_YES=true
 fi
 
 # --------------------------------------------------------------- summary -----
-summary_box() { # summary_box TITLE COLOR rest-of-lines-on-stdin
-    local title="$1" color="$2" line
-    if [[ -n "$GUM_BIN" && -t 1 ]]; then
-        local -a lines=()
-        while IFS= read -r line; do lines+=("$line"); done
-        gum style --border rounded --border-foreground "$color" --padding '0 2' \
-            --margin '1 0' "$title" "${lines[@]}"
-    else
-        printf '\n  %s\n' "$title"
-        while IFS= read -r line; do printf '  %s\n' "$line"; done
-    fi
+summary_box() { # summary_box TITLE  (body lines on stdin)
+    local title="$1" line
+    printf '\n %s╭─%s %s%s%s\n' "$C_MAG" "$C_RST" "$C_BLD" "$title" "$C_RST"
+    while IFS= read -r line; do printf ' %s│%s %s\n' "$C_MAG" "$C_RST" "$line"; done
+    printf ' %s╰─%s\n\n' "$C_MAG" "$C_RST"
 }
 
 {
-    echo "Hardware · ${DMI_PRODUCT} (virt: ${VIRT:-none})"
-    echo "Host ····· $HOST_PROFILE"
-    echo "Mode ····· $($ASSUME_YES && echo "Yes to all (unattended)" || echo "Guided (step-by-step)")"
-    echo "Extras ··· $WITH_EXTRAS    Mango · $WITH_MANGO"
-    echo "Dry run ·· $DRY_RUN"
-    echo "Stages ··· ${RUN_STAGES[*]}"
-} | summary_box "◆ Installation plan" 39
+    echo "Mode     $($ASSUME_YES && echo "Automatic" || echo "Guided")$(is_dry_run && echo "  ·  dry run (nothing will change)")"
+    echo "Extras   $WITH_EXTRAS    Mango  $WITH_MANGO"
+    echo "Stages"
+    i=0
+    for s in "${RUN_STAGES[@]}"; do
+        i=$((i + 1))
+        printf '  %s%2d%s  %s\n' "$C_GRY" "$i" "$C_RST" "$(stage_title "$s")"
+    done
+} | summary_box "Installation plan"
 
 if ! ui_confirm "Proceed with this plan?"; then
     ui_info "Aborted — nothing was changed."
@@ -223,23 +216,26 @@ if ! ui_confirm "Proceed with this plan?"; then
 fi
 
 # ---------------------------------------------------------------- run --------
-export DRY_RUN HOST_PROFILE WITH_EXTRAS WITH_MANGO LOG_FILE ASSUME_YES
+ENV_INSTALL_NESTED=1
+export DRY_RUN HOST_PROFILE WITH_EXTRAS WITH_MANGO LOG_FILE ASSUME_YES ENV_INSTALL_NESTED
 log INFO "=== install start: host=$HOST_PROFILE dry-run=$DRY_RUN extras=$WITH_EXTRAS mango=$WITH_MANGO ==="
 
 declare -a OK_STAGES=()
 declare -a FAIL_STAGES=()
+declare -a SKIP_STAGES=()
 FAILED=false
+TOTAL=${#RUN_STAGES[@]}
+IDX=0
 
 for stage in "${RUN_STAGES[@]}"; do
-    desc="$(stage_description "$stage")"
-    ui_header "▶ $stage"
-    ui_info "$desc"
+    IDX=$((IDX + 1))
+    ui_stage_card "$IDX" "$TOTAL" "$(stage_title "$stage")" "$(stage_description "$stage")"
 
     if [[ "$ASSUME_YES" != "true" ]]; then
-        if ! ui_confirm "Proceed with $stage?"; then
-            ui_warn "Skipped $stage by user choice."
-            continue
-        fi
+        case "$(ui_buttons "Run this stage?" "Run" "Skip" "Quit")" in
+            Skip) SKIP_STAGES+=("$stage"); continue ;;
+            Quit) ui_info "Stopped by user before $(stage_title "$stage")."; break ;;
+        esac
     fi
 
     if bash "$DOTS/stages/$stage"; then
@@ -247,14 +243,12 @@ for stage in "${RUN_STAGES[@]}"; do
     else
         FAIL_STAGES+=("$stage")
         FAILED=true
-        ui_warn "Stage $stage reported errors or warnings (see $LOG_FILE)."
+        ui_warn "$(stage_title "$stage") reported errors (details in $LOG_FILE)."
         if [[ "$ASSUME_YES" != "true" ]]; then
             if ! ui_confirm "Continue with the remaining stages?"; then
-                ui_info "Installation stopped after $stage."
+                ui_info "Installation stopped after $(stage_title "$stage")."
                 break
             fi
-        else
-            ui_info "Continuing with remaining stages (--yes mode)..."
         fi
     fi
 done
@@ -262,35 +256,29 @@ done
 # --------------------------------------------------------------- summary -----
 log INFO "=== install end: ok=[${OK_STAGES[*]-}] fail=[${FAIL_STAGES[*]-}] ==="
 
-status_line() { # status_line STAGE_FILE
-    local s found=false
-    for s in "${OK_STAGES[@]}"; do
-        [[ "$s" == "$1" ]] && { found=true; break; }
-    done
-    if [[ "$found" == true ]]; then
-        printf '   ✔ %s\n' "$1"
-    else
-        printf '   ✖ %s\n' "$1"
-    fi
-}
+in_list() { local x="$1"; shift; local y; for y in "$@"; do [[ "$x" == "$y" ]] && return 0; done; return 1; }
 
 {
-    for s in "${RUN_STAGES[@]}"; do status_line "$s"; done
-    echo "──────────────────────────────────────────────"
-    echo "Log · $LOG_FILE"
+    for s in "${RUN_STAGES[@]}"; do
+        t="$(stage_title "$s")"
+        if   in_list "$s" "${OK_STAGES[@]}";   then echo "${C_GRN}✔${C_RST} $t"
+        elif in_list "$s" "${FAIL_STAGES[@]}"; then echo "${C_RED}✖${C_RST} $t"
+        elif in_list "$s" "${SKIP_STAGES[@]}"; then echo "${C_GRY}↷ $t (skipped)${C_RST}"
+        else                                        echo "${C_GRY}· $t (not run)${C_RST}"
+        fi
+    done
+    echo ""
+    echo "${C_GRY}Log: $LOG_FILE${C_RST}"
     if [[ "$FAILED" == true ]]; then
         echo "Fix the failure above, then re-run ./install (stages are idempotent)."
     else
-        echo "Next steps:"
-        echo "  • reboot — greetd (dms-greeter → niri) takes over from the console"
+        echo "Next steps"
+        echo "  • reboot — greetd (dms-greeter → niri) takes over the console"
         [[ "$HOST_PROFILE" == "imac18-3" ]] && \
-        echo "  • iMac18,3: kernel args + DKMS audio need the reboot too"
-        echo "  • log back in to pick up zsh + systemd --user units (dms, dfiles…)"
-        echo "  • (optional) sync your desktop wallpaper and theme to the login screen:"
-        echo "      dms-greeter sync"
+        echo "  • iMac18,3: kernel args + DKMS audio need that reboot too"
+        echo "  • (optional) mirror wallpaper/theme to the login screen: dms-greeter sync"
     fi
-} | summary_box "$([[ "$FAILED" == true ]] && echo '◆ Finished — with failures' || echo '◆ Finished — all stages OK')" \
-      "$([[ "$FAILED" == true ]] && echo 203 || echo 46)"
+} | summary_box "$([[ "$FAILED" == true ]] && echo 'Finished with failures' || echo 'Finished')"
 
 if [[ "$FAILED" == "true" ]]; then
     exit 1
