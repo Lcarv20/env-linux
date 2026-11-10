@@ -37,13 +37,8 @@ if getent group greeter >/dev/null 2>&1; then
     fi
 fi
 
-if have dms-greeter; then
-    run_cmd "Enable dms-greeter in greetd (dms-greeter enable --yes)" \
-        sudo dms-greeter enable --yes || true
-    run_cmd "Sync user DMS state & ACLs to greeter (dms-greeter sync --yes)" \
-        dms-greeter sync --yes || true
-fi
-
+# We configure greetd directly with our custom configs below (pointing to dms-greeter).
+# No need to invoke 'dms-greeter enable' which can fail in non-interactive shells.
 install_file 0644 "$DOTS_ROOT/system/greetd/config.toml" /etc/greetd/config.toml \
     "greetd → /etc/greetd/config.toml (dms-greeter --command niri)"
 

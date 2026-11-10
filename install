@@ -286,6 +286,8 @@ status_line() { # status_line STAGE_FILE
         [[ "$HOST_PROFILE" == "imac18-3" ]] && \
         echo "  • iMac18,3: kernel args + DKMS audio need the reboot too"
         echo "  • log back in to pick up zsh + systemd --user units (dms, dfiles…)"
+        echo "  • (optional) sync your desktop wallpaper and theme to the login screen:"
+        echo "      dms-greeter sync"
     fi
 } | summary_box "$([[ "$FAILED" == true ]] && echo '◆ Finished — with failures' || echo '◆ Finished — all stages OK')" \
       "$([[ "$FAILED" == true ]] && echo 203 || echo 46)"
