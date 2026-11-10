@@ -58,6 +58,15 @@ else
         || ui_warn "Could not create /var/cache/dms-greeter."
 fi
 
+# Pre-seed settings.json so greeter widgets (such as lock-screen power actions) work on first boot
+if [[ ! -e /var/cache/dms-greeter/settings.json ]]; then
+    run_cmd "Pre-seed /var/cache/dms-greeter/settings.json" \
+        sudo install -o greeter -g greeter -m 0644 "$DOTS_ROOT/dms/.config/dms/settings.json" /var/cache/dms-greeter/settings.json \
+        || ui_warn "Could not pre-seed /var/cache/dms-greeter/settings.json."
+else
+    ui_step "Greeter settings already present (/var/cache/dms-greeter/settings.json)"
+fi
+
 # --- display managers -------------------------------------------------------------
 for dm in gdm sddm; do
     if systemctl is-active --quiet "$dm" 2>/dev/null; then
