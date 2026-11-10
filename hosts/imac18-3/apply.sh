@@ -56,8 +56,8 @@ if have dkms; then
             SRC="/usr/src/snd_hda_macbookpro-git"
             ui_step "Using existing /usr/src/snd_hda_macbookpro-git"
         else
-            run_cmd "Clone snd_hda_macbookpro (davidjo)" \
-                sudo git clone --depth=1 https://github.com/davidjo/snd_hda_macbookpro.git \
+            run_cmd "Clone snd_hda_macbookpro (Lcarv20)" \
+                sudo git clone --depth=1 https://github.com/Lcarv20/snd_hda_macbookpro.git \
                     /usr/src/snd_hda_macbookpro-git \
                 || ui_warn "Could not clone snd_hda_macbookpro."
             SRC="/usr/src/snd_hda_macbookpro-git"
