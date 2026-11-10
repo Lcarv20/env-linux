@@ -9,6 +9,19 @@ ui_header "40 · Dotfiles (stow --no-folding)"
 STOW_PKGS=(niri dms portals environment systemd-user scripts)
 [[ "$WITH_MANGO" == "true" ]] && STOW_PKGS+=(mango)
 
+pkg_description() {
+    case "$1" in
+        niri)         echo "Niri compositor layout & keybindings" ;;
+        dms)          echo "Dux Shell settings, themes & plugin configuration" ;;
+        portals)      echo "XDG portal FileChooser pin (dfiles;gtk) & default app associations" ;;
+        environment)  echo "environment.d (Wayland flags, dynamic cursor, file chooser geometry)" ;;
+        systemd-user) echo "systemd --user units (wallpaper radius cycler, zoom daemon)" ;;
+        scripts)      echo "custom helper scripts (radius cycler, niri column navigation)" ;;
+        mango)        echo "Mango compositor config" ;;
+        *)            echo "$1" ;;
+    esac
+}
+
 BACKUP_DIR="$HOME/.dots-backup-$(date +%Y%m%d-%H%M%S)"
 stow_failures=0
 
@@ -34,7 +47,7 @@ for pkg in "${STOW_PKGS[@]}"; do
             || { ui_warn "Could not back up ~/$rel — stow may fail for $pkg"; continue; }
     done < <(cd "$pkgdir" && find . -mindepth 1 \( -type f -o -type l \) -print0)
 
-    run_cmd "stow --no-folding $pkg" \
+    run_cmd "stow --no-folding $pkg ($(pkg_description "$pkg"))" \
         stow --dir="$DOTS_ROOT" --target="$HOME" --no-folding -S "$pkg" \
         || { ui_warn "stow $pkg failed — see $LOG_FILE"; stow_failures=$((stow_failures + 1)); }
 done

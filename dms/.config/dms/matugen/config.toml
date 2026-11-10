@@ -1,0 +1,5 @@
+[config]
+
+[templates.dank_zed_glass]
+input_path = '/home/lcarv/.config/dms/matugen/templates/dank-zed-glass.json'
+output_path = '/home/lcarv/.config/zed/themes/dank-zed-glass.json'

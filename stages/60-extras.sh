@@ -36,9 +36,10 @@ else
 fi
 
 # --- Keychron udev rule --------------------------------------------------------------
+# Sets fnmode=2 so F1-F12 act as regular function keys by default (instead of media keys).
 if [[ -f "$DOTS_ROOT/system/udev/50-keychron.rules" ]]; then
     install_file 0644 "$DOTS_ROOT/system/udev/50-keychron.rules" /etc/udev/rules.d/50-keychron.rules \
-        "Keychron udev rule → /etc/udev/rules.d/50-keychron.rules"
+        "Keychron udev rule (F1-F12 fn-mode) → /etc/udev/rules.d/50-keychron.rules"
     run_cmd "Reload udev rules" sudo udevadm control --reload-rules
     run_cmd "Trigger udev events" sudo udevadm trigger
 fi

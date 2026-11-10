@@ -1,21 +1,21 @@
 #!/bin/bash
 # stages/50-services.sh — system + user services:
-#   • /etc/opt/chrome/policies/managed (group-writable for dms-chrome-theme)
-#   • greetd config (config.toml, niri config.kdl + host-specific dms.kdl)
+#   • /etc/opt/chrome/policies/managed (group-writable for dms-chrome-theme autotheming)
+#   • greetd config (dms-greeter, lock screen power buttons, niri config.kdl)
 #   • disable conflicting DMs, enable greetd, graphical.target
-#   • enable systemd --user units
+#   • enable systemd --user units (dux-cycle-radius, niri-zoomd, dms)
 set -euo pipefail
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
-ui_header "50 · Services (chrome policies · greetd · user units)"
+ui_header "50 · Services (chrome autotheme policy · greetd · user units)"
 
 resolve_host_profile
 ensure_sudo
 
 # --- Chrome managed-policies dir -------------------------------------------------
-# dms-chrome-theme writes color.json here without sudo:
-# root:$USER ownership, mode 0775. Managed by dms-chrome-theme plugin.
-run_cmd "/etc/opt/chrome/policies/managed (root:$USER, 0775)" \
+# dms-chrome-theme writes color.json here to dynamically match Chrome's theme
+# to the current Matugen wallpaper palette without requiring root permissions.
+run_cmd "Chrome managed policy dir for autotheming (/etc/opt/chrome/policies/managed, 0775)" \
     sudo install -d -o root -g "$USER" -m 0775 /etc/opt/chrome/policies/managed
 
 # --- greetd & dms-greeter -------------------------------------------------------
