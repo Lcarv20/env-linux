@@ -8,5 +8,6 @@ bat
 direnv
 neovim
 delta
+fd
 rg
 gh
