@@ -1,2 +1,1 @@
-avengemedia/dms
-avengemedia/danklinux
+duxlabs/dms
