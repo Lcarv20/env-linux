@@ -1,7 +1,6 @@
 #!/bin/bash
 # stages/60-extras.sh — optional extras (runs only when WITH_EXTRAS=true):
-#   dnf extras, mise language runtimes, Keychron udev rule,
-#   and the 'mango' stow package when requested.
+#   dnf extras, mise language runtimes, and the 'mango' stow package when requested.
 set -euo pipefail
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
@@ -10,7 +9,7 @@ if [[ "$WITH_EXTRAS" != "true" ]]; then
     exit 0
 fi
 
-ui_header "60 · Extras (dnf extras · runtimes · udev · mango)"
+ui_header "60 · Extras (dnf extras · runtimes · mango)"
 
 ensure_sudo
 
@@ -44,15 +43,6 @@ if have mise && [[ -f "$MISE_EXTRAS" ]]; then
     done < <(read_manifest "$MISE_EXTRAS")
 else
     ui_warn "mise unavailable — skipped extras runtimes ($MISE_EXTRAS)."
-fi
-
-# --- Keychron udev rule --------------------------------------------------------------
-# Sets fnmode=2 so F1-F12 act as regular function keys by default (instead of media keys).
-if [[ -f "$DOTS_ROOT/system/udev/50-keychron.rules" ]]; then
-    install_file 0644 "$DOTS_ROOT/system/udev/50-keychron.rules" /etc/udev/rules.d/50-keychron.rules \
-        "Keychron udev rule (F1-F12 fn-mode) → /etc/udev/rules.d/50-keychron.rules"
-    run_cmd "Reload udev rules" sudo udevadm control --reload-rules
-    run_cmd "Trigger udev events" sudo udevadm trigger
 fi
 
 # --- mango --------------------------------------------------------------------------

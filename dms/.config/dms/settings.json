@@ -154,10 +154,6 @@
           "enabled": true
         },
         {
-          "id": "trackpadBattery",
-          "enabled": true
-        },
-        {
           "id": "dankSoftwareDepot",
           "enabled": true
         },
@@ -354,7 +350,7 @@
   "terminalPalette": "medium",
   "blurLayerOutlineOpacity": 0,
   "radiusMode": "scale",
-  "niriLayoutRadiusOverride": 16,
+  "niriLayoutRadiusOverride": 8,
   "blurBorderEnabled": true,
   "blurBorderOpacity": 0.35,
   "blurBorderColor": "outline",
@@ -502,7 +498,7 @@
   "osdPosition": 5,
   "floatingWindowTransparency": 1,
   "floatingWindowForegroundTransparency": 1,
-  "radiusStrength": 50,
+  "radiusStrength": 20,
   "batteryMonitorTimeout": 300,
   "batteryLockTimeout": 600,
   "batterySuspendTimeout": 900,

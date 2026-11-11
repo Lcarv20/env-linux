@@ -8,9 +8,6 @@
   "dankDesktopWeather": {
     "enabled": true
   },
-  "trackpadBattery": {
-    "enabled": true
-  },
   "swwwSync": {
     "enabled": false
   },
@@ -30,7 +27,7 @@
   "dankSoftwareDepot": {
     "enabled": true,
     "updatesSnapshot": {
-      "ts": 1794357042,
+      "ts": 1794366643,
       "packages": []
     },
     "checkDurationSecs": 10,

@@ -63,7 +63,7 @@ Real cruft found, all small and listed in §5.
 | 30-assets | Downloads assets tarball from **`Lcarv20/dots-linux` releases** (old repo!), SHA-256 verify, installs wallpapers/fonts/icons/dfiles-shell/bin | Works; wrong repo URL |
 | 40-dotfiles | Stows 8 env packages, backs up conflicts, seeds DMS session/colors | Has dead refs to 9 dev packages (moved to dots-linux) |
 | 50-services | greetd + dms-greeter, disables GDM/SDDM, systemd user units, Chrome policy dir | OK — this is most of your "hooks" |
-| 60-extras | Chrome repo, dnf/mise/flatpak extras, Keychron udev, optional mango | Chrome should move to dots-linux |
+| 60-extras | Chrome repo, dnf/mise/flatpak extras, optional mango | Chrome should move to dots-linux |
 | 90-hardware | Dispatcher → `hosts/<profile>/apply.sh` | OK |
 
 - `manifest/`: copr (2), dnf-core (~74), dnf-extras (6, incl. `google-chrome-stable`),
@@ -71,7 +71,7 @@ Real cruft found, all small and listed in §5.
 - `hosts/`: `imac18-3` (kernel args incl. 5K video mode, bt-resume-rescue v2,
   DKMS `snd_hda_macbookpro`, outputs.kdl) and `vm` (guest agents, empty outputs
   stub). Exactly the "quirks don't transfer" you wanted.
-- `system/`: greetd config + greeter niri kdl (generic vs iMac), Keychron udev,
+- `system/`: greetd config + greeter niri kdl (generic vs iMac),
   dfiles-shell patcher (bigger picker + "Dux Chooser · " title prefix), DMS
   session.json/dms-colors.json seeds.
 - **7 files uncommitted in the working tree** (live DMS writes through stow
@@ -96,7 +96,7 @@ Real cruft found, all small and listed in §5.
 | **Yours (gitted ✓)** | `dms-dynamic-cursor`, `dms-chrome-theme` | Already on GitHub (`Lcarv20/…`), cloned in `~/Developer/Software`, **symlinked** into `~/.config/dms/plugins/` |
 | Community (registry) | `dankDesktopWeather`, `dankNotepadModule`, `dankSoftwareDepot`, `emojiPicker`, `quickCapture` | Managed by dms; pinned in `~/.config/dms/plugins.lock.json`. `dms plugins restore` reinstalls from the lockfile — **one command, nothing lost** |
 | Community (external) | `dms-cpufreq` (MAHcodes — not in dms registry) | Cloned to `~/Developer/Software`, symlinked like your own |
-| Bundled with env-linux | `simple-calc`, `trackpadBattery`, `web-search` | Files inside the `dms` stow package → land via stage 40 |
+| Bundled with env-linux | `simple-calc`, `web-search` | Files inside the `dms` stow package → land via stage 40 |
 
 **Gap:** no installer stage consumes `plugins.lock.json` or clones your repos —
 a fresh machine gets only the 3 bundled plugins. The lockfile mechanism exists;

@@ -42,7 +42,7 @@ Stages:
   40-dotfiles     Stow packages (niri, dms, portals [file-picker pin], environment.d [Wayland/cursor], systemd-user, scripts)
   45-own-software Personal tools (web-app-installer: turn websites into desktop apps)
   50-services     Greetd display manager (dms-greeter), graphical session, user systemd units
-  60-extras       Optional extras (clang, mise runtimes, Keychron fn-mode udev rule)
+  60-extras       Optional extras (clang, mise language runtimes)
   90-hardware     Host quirks (imac18-3: 5K Retina, audio DKMS, BT rescue; vm: guest agents)
 EOF
 }
@@ -149,7 +149,7 @@ stage_description() {
         40-dotfiles.sh)     echo "Stow niri, dms, portals, environment.d, systemd-user, scripts" ;;
         45-own-software.sh) echo "web-app-installer (websites → desktop apps)" ;;
         50-services.sh)     echo "greetd + dms-greeter, graphical target, user systemd units" ;;
-        60-extras.sh)       echo "clang, mise language runtimes, Keychron udev rule" ;;
+        60-extras.sh)       echo "clang, mise language runtimes" ;;
         90-hardware.sh)     echo "iMac: 5K kernel args, audio DKMS, BT rescue · VM: guest agents" ;;
         *)                  echo "Run $1" ;;
     esac
@@ -202,10 +202,9 @@ stage_details() {
             ui_item "User services" "Enables dms, dfiles, dsearch, dux-cycle-radius.path (auto corner radius) & niri-zoomd.service (cursor zoom)"
             ;;
         60-extras.sh)
-            ui_why "Optional dev toolchains and peripheral rules requested via --with-extras."
+            ui_why "Optional dev toolchains and language runtimes requested via --with-extras."
             ui_item "Compiler & tools" "Installs clang via dnf"
             ui_item "Mise runtimes"    "Installs bun, node, go, rust, pnpm, lua, deno, prettier & lua-language-server"
-            ui_item "Keychron udev"    "Installs /etc/udev/rules.d/99-keychron-fn.rules (standard F1–F12 keys by default)"
             ;;
         90-hardware.sh)
             ui_why "Applies machine-specific hardware fixes for profile '$HOST_PROFILE' while keeping the rest of the repo portable."
