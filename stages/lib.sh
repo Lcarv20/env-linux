@@ -25,7 +25,7 @@ PROFILE="${PROFILE:-custom}"
 ASSUME_YES="${ASSUME_YES:-false}"
 
 # ---------------------------------------------------------------- colors ----
-if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+if [[ ( -t 1 || -t 2 ) && -z "${NO_COLOR:-}" ]]; then
     C_RST=$'\e[0m';  C_BLD=$'\e[1m'
     C_RED=$'\e[31m'; C_GRN=$'\e[32m'; C_YLW=$'\e[33m'
     C_BLU=$'\e[34m'; C_MAG=$'\e[35m'; C_CYN=$'\e[36m'; C_GRY=$'\e[90m'
@@ -98,12 +98,15 @@ ui_header() { # section banner
     printf '\n  %s── %s ──%s\n' "$C_BLD$C_MAG" "$*" "$C_RST"
 }
 
-ui_stage_card() { # ui_stage_card INDEX TOTAL TITLE DESCRIPTION
-    local idx="$1" total="$2" title="$3" desc="$4"
+ui_stage_card() { # ui_stage_card INDEX TOTAL TITLE  (detail lines on stdin)
+    local idx="$1" total="$2" title="$3" line
     log STAGE "=== [$idx/$total] $title ==="
     printf '\n %s╭─%s %s[%s/%s]%s %s%s%s\n' \
         "$C_MAG" "$C_RST" "$C_GRY" "$idx" "$total" "$C_RST" "$C_BLD$C_MAG" "$title" "$C_RST"
-    printf ' %s╰─%s %s%s%s\n' "$C_MAG" "$C_RST" "$C_GRY" "$desc" "$C_RST"
+    while IFS= read -r line; do
+        printf ' %s│%s  %s\n' "$C_MAG" "$C_RST" "$line"
+    done
+    printf ' %s╰─%s\n' "$C_MAG" "$C_RST"
 }
 
 ui_step()  { printf '  %s✔%s %s\n' "$C_GRN" "$C_RST" "$*"; log OK "$*"; }
