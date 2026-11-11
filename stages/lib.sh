@@ -86,6 +86,102 @@ ui_tty() { # ui_tty -> rc 0 when we can talk to a human
     { : </dev/tty; } 2>/dev/null
 }
 
+# Usable card width (clamped to 52..76 cols so layouts stay tight on wide
+# monitors and never wrap mid-word inside Niri tiled columns).
+_ui_width() {
+    local c
+    c="$(tput cols 2>/dev/null </dev/tty || tput cols 2>/dev/null || echo 76)"
+    (( c > 0 )) || c=76
+    c=$(( c - 2 ))
+    (( c > 76 )) && c=76
+    (( c < 52 )) && c=52
+    echo "$c"
+}
+
+# Repeat a character N times.
+_ui_rep() {
+    local ch="$1" n="$2" out="" i
+    for ((i=0; i<n; i++)); do out+="$ch"; done
+    printf '%s' "$out"
+}
+
+# Draw a horizontal section header rule:  ── TITLE ──────────────
+ui_rule_top() { # ui_rule_top [BADGE] TITLE
+    local badge="$1" title="$2" w pad
+    w="$(_ui_width)"
+    local plain_len=$(( 4 + ${#badge} + (${#badge} > 0 ? 1 : 0) + ${#title} ))
+    pad=$(( w - plain_len ))
+    (( pad < 2 )) && pad=2
+    if [[ -n "$badge" ]]; then
+        printf '\n  %s──%s %s%s%s %s%s%s %s%s%s\n' \
+            "$C_MAG" "$C_RST" \
+            "$C_GRY" "$badge" "$C_RST" \
+            "$C_BLD$C_MAG" "$title" "$C_RST" \
+            "$C_MAG" "$(_ui_rep '─' "$pad")" "$C_RST"
+    else
+        printf '\n  %s──%s %s%s%s %s%s%s\n' \
+            "$C_MAG" "$C_RST" \
+            "$C_BLD$C_MAG" "$title" "$C_RST" \
+            "$C_MAG" "$(_ui_rep '─' "$pad")" "$C_RST"
+    fi
+}
+
+ui_rule_bottom() {
+    local w
+    w="$(_ui_width)"
+    printf '  %s%s%s\n' "$C_MAG" "$(_ui_rep '─' "$w")" "$C_RST"
+}
+
+shopt -s extglob
+
+# Word-wrap a two-column row with hanging indent so lines never split mid-word.
+# Usage: ui_row PREFIX VISIBLE_PREFIX_LEN TEXT [TEXT_COLOR]
+ui_row() {
+    local prefix="$1" plen="$2" text="$3" tcol="${4:-}"
+    local w avail word plain wlen cur=0
+    w="$(_ui_width)"
+    avail=$(( w - plen + 2 ))
+    (( avail < 20 )) && avail=20
+
+    local -a words=()
+    read -ra words <<<"$text"
+    printf '%s%s' "$prefix" "$tcol"
+    for word in "${words[@]}"; do
+        plain="${word//$'\e'\[*([0-9;])m/}"
+        wlen=${#plain}
+        if (( cur == 0 )); then
+            printf '%s' "$word"
+            cur=$wlen
+        elif (( cur + 1 + wlen <= avail )); then
+            printf ' %s' "$word"
+            cur=$(( cur + 1 + wlen ))
+        else
+            printf '%s\n%*s%s%s' "$C_RST" "$plen" "" "$tcol" "$word"
+            cur=$wlen
+        fi
+    done
+    printf '%s\n' "$C_RST"
+}
+
+# Table item inside a stage card:  • Label (18 cols)   Word-wrapped description
+ui_item() { # ui_item LABEL DESCRIPTION [BULLET_CHAR]
+    local label="$1" desc="$2" bullet="${3:-•}"
+    local col_w=19 pad prefix
+    pad=$(( col_w - ${#label} ))
+    (( pad < 2 )) && pad=2
+    prefix="$(printf '  %s%s%s %s%s%s%*s' "$C_CYN" "$bullet" "$C_RST" "$C_BLD" "$label" "$C_RST" "$pad" "")"
+    local plen=$(( 4 + ${#label} + pad ))
+    ui_row "$prefix" "$plen" "$desc" ""
+}
+
+# "Why:" paragraph at the top of a stage card, word-wrapped with hanging indent.
+ui_why() { # ui_why TEXT
+    local prefix
+    prefix="$(printf '  %sWhy:%s ' "$C_BLD" "$C_RST")"
+    ui_row "$prefix" 7 "$1" "$C_GRY"
+    printf '\n'
+}
+
 ui_header() { # section banner
     log STAGE "=== $* ==="
     # When ./install runs a stage it already drew a stage card with the same
@@ -95,25 +191,20 @@ ui_header() { # section banner
         return 0
     fi
     export ENV_UI_HEADER_SHOWN=1
-    printf '\n  %s── %s ──%s\n' "$C_BLD$C_MAG" "$*" "$C_RST"
+    ui_rule_top "" "$*"
 }
 
-ui_stage_card() { # ui_stage_card INDEX TOTAL TITLE  (detail lines on stdin)
-    local idx="$1" total="$2" title="$3" line
+ui_stage_card() { # ui_stage_card INDEX TOTAL TITLE  (body rendered by caller or stdin)
+    local idx="$1" total="$2" title="$3"
     log STAGE "=== [$idx/$total] $title ==="
-    printf '\n %s╭─%s %s[%s/%s]%s %s%s%s\n' \
-        "$C_MAG" "$C_RST" "$C_GRY" "$idx" "$total" "$C_RST" "$C_BLD$C_MAG" "$title" "$C_RST"
-    while IFS= read -r line; do
-        printf ' %s│%s  %s\n' "$C_MAG" "$C_RST" "$line"
-    done
-    printf ' %s╰─%s\n' "$C_MAG" "$C_RST"
+    ui_rule_top "[$idx/$total]" "$title"
 }
 
-ui_step()  { printf '  %s✔%s %s\n' "$C_GRN" "$C_RST" "$*"; log OK "$*"; }
-ui_info()  { printf '  %s•%s %s\n' "$C_CYN" "$C_RST" "$*"; log INFO "$*"; }
-ui_warn()  { printf '  %s⚠%s  %s\n' "$C_YLW" "$C_RST" "$*"; log WARN "$*"; }
-ui_error() { printf '  %s✖%s %s\n' "$C_RED" "$C_RST" "$*" >&2; log ERROR "$*"; }
-ui_dry()   { printf '  %s[dry-run]%s %s\n' "$C_YLW" "$C_RST" "$*"; log DRY "$*"; }
+ui_step()  { ui_row "$(printf '  %s✔%s  ' "$C_GRN" "$C_RST")" 5 "$*" ""; log OK "$*"; }
+ui_info()  { ui_row "$(printf '  %s•%s  ' "$C_CYN" "$C_RST")" 5 "$*" ""; log INFO "$*"; }
+ui_warn()  { ui_row "$(printf '  %s⚠%s  ' "$C_YLW" "$C_RST")" 5 "$*" ""; log WARN "$*"; }
+ui_error() { ui_row "$(printf '  %s✖%s  ' "$C_RED" "$C_RST")" 5 "$*" "" >&2; log ERROR "$*"; }
+ui_dry()   { ui_row "$(printf '  %s[dry-run]%s ' "$C_YLW" "$C_RST")" 12 "$*" ""; log DRY "$*"; }
 
 # Read one key from the terminal; arrows / escape sequences normalized to
 # up|down|left|right|enter|space|tab|esc or the literal character.

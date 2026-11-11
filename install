@@ -161,81 +161,80 @@ stage_description() {
 stage_details() {
     case "$1" in
         00-repos.sh)
-            printf '%sWhy:%s Fedora Minimal only ships base FOSS repos — missing media codecs, Terra packages & DuxLabs COPR.\n' "$C_BLD" "$C_RST"
-            printf '%s•%s %sRPM Fusion (Free & Nonfree)%s — hardware video/audio codecs & firmware\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
-            printf '%s•%s %sTerra (Fyra Labs)%s          — extra desktop & CLI packages not in upstream Fedora\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
-            printf '%s•%s %sCOPR (duxlabs/dms)%s         — official Niri, Dux Shell (dms), greeter & dux-files RPMs\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
+            ui_why "Fedora Minimal only ships base FOSS repos — missing media codecs, Terra packages & DuxLabs COPR."
+            ui_item "RPM Fusion"   "Hardware video/audio codecs & firmware (Free & Nonfree)"
+            ui_item "Terra"        "Extra desktop & CLI packages from Fyra Labs"
+            ui_item "DuxLabs COPR" "Official Niri, Dux Shell (dms), dms-greeter & dux-files RPMs"
             ;;
         10-desktop-base.sh)
-            printf '%sWhy:%s Installs the OS plumbing (audio, GPU, portals, fonts, shell & CLI tools) that Niri + DMS rely on.\n' "$C_BLD" "$C_RST"
-            printf '%s•%s %sWayland & GPU%s    — Mesa GL/Vulkan/VA-API drivers, wl-clipboard, cliphist, wtype\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
-            printf '%s•%s %sAudio & System%s   — PipeWire + WirePlumber, BlueZ Bluetooth, NetworkManager Wi-Fi, brightnessctl, upower\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
-            printf '%s•%s %sPortals & UI%s     — xdg-desktop-portal (gtk/gnome), polkit, GTK3/4, Qt6 Wayland, Noto & JetBrains Mono fonts\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
-            printf '%s•%s %sShell & CLI%s      — zsh (default login shell), Antidote, mise + core tools (nvim, fzf, rg, fd, bat, delta, lazygit, starship, zoxide, lsd, gh)\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
+            ui_why "Installs the OS plumbing (audio, GPU, portals, fonts, shell & CLI tools) that Niri + DMS rely on."
+            ui_item "Wayland & GPU"  "Mesa GL/Vulkan/VA-API drivers, wl-clipboard, cliphist, wtype"
+            ui_item "Audio & System" "PipeWire + WirePlumber, BlueZ Bluetooth, NetworkManager Wi-Fi, brightnessctl, upower"
+            ui_item "Portals & UI"   "xdg-desktop-portal (gtk/gnome), polkit, GTK3/4, Qt6 Wayland, Noto & JetBrains Mono fonts"
+            ui_item "Shell & CLI"    "zsh (default login shell), Antidote, mise + core tools (nvim, fzf, rg, fd, bat, delta, lazygit, starship, zoxide, lsd, gh)"
             ;;
         20-niri-dms.sh)
-            printf '%sWhy:%s Ensures the upstream Dux Shell binaries exist and cleans old manual installs that shadow RPM updates.\n' "$C_BLD" "$C_RST"
-            printf '%s•%s %sVerify stack%s     — checks niri, dms, dms-greeter, dfiles, matugen, wtype are installed on PATH\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
-            printf '%s•%s %sClean ~/.local/bin%s — removes legacy unowned binaries (old wtype/swww) so /usr/bin RPMs take precedence\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
+            ui_why "Ensures the upstream Dux Shell binaries exist and cleans old manual installs that shadow RPM updates."
+            ui_item "Verify stack"     "Checks niri, dms, dms-greeter, dfiles, matugen & wtype are installed on PATH"
+            ui_item "Clean ~/.local/bin" "Removes legacy unowned binaries (old wtype/swww) so /usr/bin RPMs take precedence"
             ;;
         30-assets.sh)
-            printf '%sWhy:%s Fetches heavy binary assets (wallpapers, cursors, fonts, QML shells) kept out of git history.\n' "$C_BLD" "$C_RST"
-            printf '%s•%s %sRelease bundle%s   — downloads & verifies env-assets-v1.tar.zst into ~/.cache/env-linux-assets\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
-            printf '%s•%s %sWallpapers%s       — extracts 56 wallpapers to ~/Pictures/Walpapers (+ ~/Pictures/Wallpapers symlink)\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
-            printf '%s•%s %sCursors & Fonts%s  — installs JuxCursor/icons (~/.local/share/icons), Adwaita fallback, custom fonts (~/.local/share/fonts)\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
-            printf '%s•%s %sdfiles-shell%s     — installs ~/.config/dfiles-shell & patches dux-files QML for dynamic Material 3 colors\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
-            printf '%s•%s %sHelper binaries%s  — installs bundled zoom/helper daemons into ~/.local/bin\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
+            ui_why "Fetches heavy binary assets (wallpapers, cursors, fonts, QML shells) kept out of git history."
+            ui_item "Release bundle"  "Downloads & verifies env-assets-v1.tar.zst into ~/.cache/env-linux-assets"
+            ui_item "Wallpapers"      "Extracts 56 wallpapers to ~/Pictures/Walpapers (+ ~/Pictures/Wallpapers symlink)"
+            ui_item "Cursors & Fonts" "Installs JuxCursor/icons (~/.local/share/icons), Adwaita fallback & custom fonts"
+            ui_item "dfiles-shell"    "Installs ~/.config/dfiles-shell & patches dux-files QML for dynamic Material 3 colors"
+            ui_item "Helper binaries" "Installs bundled zoom/helper daemons into ~/.local/bin"
             ;;
         35-plugins.sh)
-            printf '%sWhy:%s Restores official Dux Shell widgets and clones/links your custom Material 3 & hardware plugins.\n' "$C_BLD" "$C_RST"
-            printf '%s•%s %sRegistry plugins%s — restores official plugins from dms/.config/dms/plugins.lock.json\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
-            printf '%s•%s %sCustom plugins%s   — clones to ~/Developer/Software & symlinks into ~/.config/dms/plugins/:\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
-            printf '    %s◦%s dms-dynamic-cursor (SVG cursor tinted to wallpaper accent)\n' "$C_GRY" "$C_RST"
-            printf '    %s◦%s dms-chrome-theme   (live Material 3 theme injection for Chrome/Brave)\n' "$C_GRY" "$C_RST"
-            printf '    %s◦%s dms-cpufreq        (CpuFreq governor & turbo-boost bar widget)\n' "$C_GRY" "$C_RST"
+            ui_why "Restores official Dux Shell widgets and clones/links your custom Material 3 & hardware plugins."
+            ui_item "Registry plugins"   "Restores official plugins from dms/.config/dms/plugins.lock.json"
+            ui_item "dms-dynamic-cursor" "Clones & links SVG cursor plugin tinted to wallpaper accent"
+            ui_item "dms-chrome-theme"   "Clones & links live Material 3 theme injector for Chrome/Brave"
+            ui_item "dms-cpufreq"        "Clones & links CpuFreq governor & turbo-boost bar widget"
             ;;
         40-dotfiles.sh)
-            printf '%sWhy:%s Symlinks tracked desktop configs from ~/env-linux into $HOME and seeds default theme state.\n' "$C_BLD" "$C_RST"
-            printf '%s•%s %sConflict backup%s  — moves any pre-existing non-symlink files into ~/.dots-backup-<timestamp>/\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
-            printf '%s•%s %sGNU Stow%s         — stows (--no-folding): niri, dms, portals (dfiles picker pin), environment, systemd-user, scripts\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
-            printf '%s•%s %sCursor & Theme%s   — sets Adwaita @ 32 in GTK 3/4 & ~/.Xresources; seeds initial DMS wallpaper (rogue.jpg) & Material 3 palette\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
+            ui_why "Symlinks tracked desktop configs from ~/env-linux into \$HOME and seeds default theme state."
+            ui_item "Conflict backup" "Moves any pre-existing non-symlink files into ~/.dots-backup-<timestamp>/"
+            ui_item "GNU Stow"        "Stows (--no-folding): niri, dms, portals (dfiles picker pin), environment, systemd-user, scripts"
+            ui_item "Cursor & Theme"  "Sets Adwaita @ 32 in GTK 3/4 & ~/.Xresources; seeds initial DMS wallpaper (rogue.jpg) & Material 3 palette"
             ;;
         45-own-software.sh)
-            printf '%sWhy:%s Builds and installs your personal desktop tools from source.\n' "$C_BLD" "$C_RST"
-            printf '%s•%s %sweb-app-installer%s — clones Lcarv20/web-app-installer to ~/Developer/Software & runs make install (turns websites into isolated desktop apps)\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
+            ui_why "Builds and installs your personal desktop tools from source."
+            ui_item "web-app-installer" "Clones Lcarv20/web-app-installer to ~/Developer/Software & runs make install (turns websites into isolated desktop apps)"
             ;;
         50-services.sh)
-            printf '%sWhy:%s Configures the graphical login screen (greetd → dms-greeter → niri) and background user daemons.\n' "$C_BLD" "$C_RST"
-            printf '%s•%s %sgreetd config%s    — installs /etc/greetd/config.toml & niri configs; pre-seeds /var/cache/dms-greeter/settings.json (enables login power menu)\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
-            printf '%s•%s %sBoot target%s      — disables conflicting gdm/sddm, enables greetd.service, sets default target to graphical.target\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
-            printf '%s•%s %sUser services%s    — enables dms.service, dfiles.service, dsearch.service, dux-cycle-radius.path (auto corner radius) & niri-zoomd.service (cursor zoom)\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
+            ui_why "Configures the graphical login screen (greetd → dms-greeter → niri) and background user daemons."
+            ui_item "greetd config" "Installs /etc/greetd/config.toml & niri configs; pre-seeds /var/cache/dms-greeter/settings.json (login power menu)"
+            ui_item "Boot target"   "Disables conflicting gdm/sddm, enables greetd.service & sets graphical.target"
+            ui_item "User services" "Enables dms, dfiles, dsearch, dux-cycle-radius.path (auto corner radius) & niri-zoomd.service (cursor zoom)"
             ;;
         60-extras.sh)
-            printf '%sWhy:%s Optional dev toolchains and peripheral rules requested via --with-extras.\n' "$C_BLD" "$C_RST"
-            printf '%s•%s %sCompiler & tools%s — installs clang via dnf\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
-            printf '%s•%s %sMise runtimes%s    — installs bun, node, go, rust, pnpm, lua, deno, prettier, lua-language-server\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
-            printf '%s•%s %sKeychron udev%s    — installs /etc/udev/rules.d/99-keychron-fn.rules (standard F1–F12 keys by default)\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
+            ui_why "Optional dev toolchains and peripheral rules requested via --with-extras."
+            ui_item "Compiler & tools" "Installs clang via dnf"
+            ui_item "Mise runtimes"    "Installs bun, node, go, rust, pnpm, lua, deno, prettier & lua-language-server"
+            ui_item "Keychron udev"    "Installs /etc/udev/rules.d/99-keychron-fn.rules (standard F1–F12 keys by default)"
             ;;
         90-hardware.sh)
-            printf '%sWhy:%s Applies machine-specific hardware fixes for profile '\''%s%s%s'\'' while keeping the rest of the repo portable.\n' "$C_BLD" "$C_RST" "$C_BLD" "$HOST_PROFILE" "$C_RST"
+            ui_why "Applies machine-specific hardware fixes for profile '$HOST_PROFILE' while keeping the rest of the repo portable."
             case "$HOST_PROFILE" in
                 imac18-3)
-                    printf '%s•%s %sKernel boot args%s — adds mem_sleep_default=s2idle, acpi_osi=!Darwin, acpi_backlight=video, video=eDP-1:5120x2880MR@60e via grubby\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
-                    printf '%s•%s %sAudio DKMS%s       — clones & builds snd_hda_macbookpro DKMS module for iMac18,3 Cirrus Logic CS8409 speakers/mic\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
-                    printf '%s•%s %sBluetooth rescue%s — installs /usr/local/sbin/bt-resume-rescue + systemd-suspend drop-in to fix BT wake wedge\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
-                    printf '%s•%s %s5K Display mode%s  — installs ~/.config/niri/dms/outputs.kdl (eDP-1 3840×2160 @ scale 1.25)\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
+                    ui_item "Kernel boot args" "Adds mem_sleep_default=s2idle, acpi_osi=!Darwin, acpi_backlight=video & video=eDP-1:5120x2880MR@60e via grubby"
+                    ui_item "Audio DKMS"       "Clones & builds snd_hda_macbookpro DKMS module for iMac18,3 Cirrus Logic CS8409 speakers/mic"
+                    ui_item "Bluetooth rescue" "Installs /usr/local/sbin/bt-resume-rescue + systemd-suspend drop-in to fix BT wake wedge"
+                    ui_item "5K Display mode"  "Installs ~/.config/niri/dms/outputs.kdl (eDP-1 3840×2160 @ scale 1.25)"
                     ;;
                 vm)
-                    printf '%s•%s %sVM Guest Agents%s  — installs & enables qemu-guest-agent + spice-vdagent (clipboard & auto-resize)\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
-                    printf '%s•%s %sDisplay outputs%s  — installs generic ~/.config/niri/dms/outputs.kdl with auto-detected resolution\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
+                    ui_item "VM Guest Agents" "Installs & enables qemu-guest-agent + spice-vdagent (clipboard & auto-resize)"
+                    ui_item "Display outputs" "Installs generic ~/.config/niri/dms/outputs.kdl with auto-detected resolution"
                     ;;
                 *)
-                    printf '%s•%s %sNo host quirks%s   — generic hardware profile (no machine-specific kernel/DKMS hacks needed)\n' "$C_CYN" "$C_RST" "$C_BLD" "$C_RST"
+                    ui_item "No host quirks"  "Generic hardware profile (no machine-specific kernel/DKMS hacks needed)"
                     ;;
             esac
             ;;
         *)
-            printf '%s•%s Run stage script %s\n' "$C_CYN" "$C_RST" "$1"
+            ui_item "$1" "Run stage script $1"
             ;;
     esac
 }
@@ -274,27 +273,23 @@ elif [[ "$ASSUME_YES" != "true" ]]; then
 fi
 
 # --------------------------------------------------------------- summary -----
-summary_box() { # summary_box TITLE  (body lines on stdin)
-    local title="$1" line
-    printf '\n %s╭─%s %s%s%s\n' "$C_MAG" "$C_RST" "$C_BLD" "$title" "$C_RST"
-    while IFS= read -r line; do printf ' %s│%s %s\n' "$C_MAG" "$C_RST" "$line"; done
-    printf ' %s╰─%s\n\n' "$C_MAG" "$C_RST"
-}
+ui_rule_top "" "Installation plan"
+printf '  %sMode%s     %s%s\n' "$C_GRY" "$C_RST" \
+    "$($ASSUME_YES && echo "Automatic" || echo "Guided")" \
+    "$(is_dry_run && echo " · dry run (nothing will change)" || echo "")"
+printf '  %sHost%s     %s (%s)\n' "$C_GRY" "$C_RST" "$HOST_PROFILE" "$DMI_PRODUCT"
+printf '  %sFlags%s    Extras: %s  ·  Mango: %s\n\n' "$C_GRY" "$C_RST" "$WITH_EXTRAS" "$WITH_MANGO"
 
-{
-    echo "Mode     $($ASSUME_YES && echo "Automatic" || echo "Guided")$(is_dry_run && echo "  ·  dry run (nothing will change)")"
-    echo "Host     $HOST_PROFILE ($DMI_PRODUCT)"
-    echo "Extras   $WITH_EXTRAS    Mango  $WITH_MANGO"
-    echo "Stages"
-    i=0
-    for s in "${RUN_STAGES[@]}"; do
-        i=$((i + 1))
-        printf '  %s%2d%s  %-28s %s— %s%s\n' \
-            "$C_GRY" "$i" "$C_RST" \
-            "$(stage_title "$s")" \
-            "$C_GRY" "$(stage_description "$s")" "$C_RST"
-    done
-} | summary_box "Installation plan"
+i=0
+for s in "${RUN_STAGES[@]}"; do
+    i=$((i + 1))
+    t="$(stage_title "$s")"
+    pad=$(( 28 - ${#t} )); (( pad < 2 )) && pad=2
+    prefix="$(printf '  %s%2d%s  %s%s%s%*s' "$C_GRY" "$i" "$C_RST" "$C_BLD" "$t" "$C_RST" "$pad" "")"
+    ui_row "$prefix" $(( 6 + ${#t} + pad )) "$(stage_description "$s")" "$C_GRY"
+done
+ui_rule_bottom
+printf '\n'
 
 if ! ui_confirm "Proceed with this plan?"; then
     ui_info "Aborted — nothing was changed."
@@ -315,7 +310,9 @@ IDX=0
 
 for stage in "${RUN_STAGES[@]}"; do
     IDX=$((IDX + 1))
-    stage_details "$stage" | ui_stage_card "$IDX" "$TOTAL" "$(stage_title "$stage")"
+    ui_stage_card "$IDX" "$TOTAL" "$(stage_title "$stage")"
+    stage_details "$stage"
+    ui_rule_bottom
 
     if [[ "$ASSUME_YES" != "true" ]]; then
         case "$(ui_buttons "Run [$IDX/$TOTAL] $(stage_title "$stage")?" "Run" "Skip")" in
@@ -343,27 +340,27 @@ log INFO "=== install end: ok=[${OK_STAGES[*]-}] fail=[${FAIL_STAGES[*]-}] ==="
 
 in_list() { local x="$1"; shift; local y; for y in "$@"; do [[ "$x" == "$y" ]] && return 0; done; return 1; }
 
-{
-    for s in "${RUN_STAGES[@]}"; do
-        t="$(stage_title "$s")"
-        if   in_list "$s" "${OK_STAGES[@]}";   then echo "${C_GRN}✔${C_RST} $t"
-        elif in_list "$s" "${FAIL_STAGES[@]}"; then echo "${C_RED}✖${C_RST} $t"
-        elif in_list "$s" "${SKIP_STAGES[@]}"; then echo "${C_GRY}↷ $t (skipped)${C_RST}"
-        else                                        echo "${C_GRY}· $t (not run)${C_RST}"
-        fi
-    done
-    echo ""
-    echo "${C_GRY}Log: $LOG_FILE${C_RST}"
-    if [[ "$FAILED" == true ]]; then
-        echo "Fix the failure above, then re-run ./install (stages are idempotent)."
-    else
-        echo "Next steps"
-        echo "  • reboot — greetd (dms-greeter → niri) takes over the console"
-        [[ "$HOST_PROFILE" == "imac18-3" ]] && \
-        echo "  • iMac18,3: kernel args + DKMS audio need that reboot too"
-        echo "  • (optional) mirror wallpaper/theme to the login screen: dms-greeter sync"
+ui_rule_top "" "$([[ "$FAILED" == true ]] && echo 'Finished with failures' || echo 'Finished')"
+for s in "${RUN_STAGES[@]}"; do
+    t="$(stage_title "$s")"
+    if   in_list "$s" "${OK_STAGES[@]}";   then printf '  %s✔%s  %s\n' "$C_GRN" "$C_RST" "$t"
+    elif in_list "$s" "${FAIL_STAGES[@]}"; then printf '  %s✖%s  %s\n' "$C_RED" "$C_RST" "$t"
+    elif in_list "$s" "${SKIP_STAGES[@]}"; then printf '  %s↷  %s (skipped)%s\n' "$C_GRY" "$t" "$C_RST"
+    else                                        printf '  %s·  %s (not run)%s\n' "$C_GRY" "$t" "$C_RST"
     fi
-} | summary_box "$([[ "$FAILED" == true ]] && echo 'Finished with failures' || echo 'Finished')"
+done
+printf '\n  %sLog:%s %s\n' "$C_GRY" "$C_RST" "$LOG_FILE"
+if [[ "$FAILED" == true ]]; then
+    printf '  Fix the failure above, then re-run ./install (stages are idempotent).\n'
+else
+    printf '  %sNext steps%s\n' "$C_BLD" "$C_RST"
+    printf '  • reboot — greetd (dms-greeter → niri) takes over the console\n'
+    [[ "$HOST_PROFILE" == "imac18-3" ]] && \
+    printf '  • iMac18,3: kernel args + DKMS audio need that reboot too\n'
+    printf '  • (optional) mirror wallpaper/theme to login screen: dms-greeter sync\n'
+fi
+ui_rule_bottom
+printf '\n'
 
 if [[ "$FAILED" == "true" ]]; then
     exit 1
