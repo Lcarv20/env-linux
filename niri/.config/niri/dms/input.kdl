@@ -11,5 +11,6 @@ input {
         accel-speed 0.0
         natural-scroll
         dwt
+        scroll-factor 0.4
     }
 }

@@ -111,10 +111,6 @@
           "focusedWindowCompactMode": false,
           "focusedWindowShowIcon": true,
           "focusedWindowSize": 1
-        },
-        {
-          "id": "cpuFreq",
-          "enabled": true
         }
       ],
       "centerWidgets": [
@@ -125,7 +121,12 @@
           "mediaShowCoverArt": true,
           "mediaSize": 1
         },
-        "clock",
+        {
+          "id": "clock",
+          "enabled": true,
+          "clockCompactMode": false,
+          "clockDateOrder": "timeFirst"
+        },
         "weather",
         {
           "id": "launcherButton",
@@ -135,7 +136,10 @@
       "rightWidgets": [
         {
           "id": "systemTray",
-          "enabled": true
+          "enabled": true,
+          "trayUseInlineExpansion": true,
+          "trayMaxVisibleItems": 8,
+          "trayIconSpacing": 13
         },
         {
           "id": "clipboard",
@@ -350,7 +354,7 @@
   "terminalPalette": "medium",
   "blurLayerOutlineOpacity": 0,
   "radiusMode": "scale",
-  "niriLayoutRadiusOverride": 8,
+  "niriLayoutRadiusOverride": 16,
   "blurBorderEnabled": true,
   "blurBorderOpacity": 0.35,
   "blurBorderColor": "outline",
@@ -412,7 +416,7 @@
     }
   ],
   "displayProfileAutoSelect": true,
-  "niriLayoutBorderSize": 3,
+  "niriLayoutBorderSize": 5,
   "niriLayoutGapsOverride": 30,
   "notificationPopupPosition": 0,
   "matugenTemplateGhostty": true,
@@ -498,7 +502,7 @@
   "osdPosition": 5,
   "floatingWindowTransparency": 1,
   "floatingWindowForegroundTransparency": 1,
-  "radiusStrength": 20,
+  "radiusStrength": 50,
   "batteryMonitorTimeout": 300,
   "batteryLockTimeout": 600,
   "batterySuspendTimeout": 900,
@@ -652,5 +656,12 @@
         "shape": "round"
       }
     }
-  ]
+  ],
+  "touchpadScrollFactor": 0.4,
+  "desktopWidgetInstances": [],
+  "batteryScaleToChargeLimit": false,
+  "batteryCriticalAnimation": true,
+  "batteryCriticalNotificationType": 1,
+  "clockFormat": "24h",
+  "showWeekNumber": false
 }

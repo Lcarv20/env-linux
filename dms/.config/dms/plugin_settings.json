@@ -30,256 +30,10 @@
   "dankSoftwareDepot": {
     "enabled": true,
     "updatesSnapshot": {
-      "ts": 1794277593,
-      "packages": [
-        {
-          "name": "bluez.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "5.87+1.git8750129efca8-1.fc44",
-          "toVersion": "5.88-1.fc44"
-        },
-        {
-          "name": "bluez-cups.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "5.87+1.git8750129efca8-1.fc44",
-          "toVersion": "5.88-1.fc44"
-        },
-        {
-          "name": "bluez-libs.i686",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "5.87+1.git8750129efca8-1.fc44",
-          "toVersion": "5.88-1.fc44"
-        },
-        {
-          "name": "bluez-libs.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "5.87+1.git8750129efca8-1.fc44",
-          "toVersion": "5.88-1.fc44"
-        },
-        {
-          "name": "fwupd-efi.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "1.9-3.fc44",
-          "toVersion": "1.9-4.fc44"
-        },
-        {
-          "name": "gstreamer1.i686",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "1.28.8-1.fc44",
-          "toVersion": "1.28.9-1.fc44"
-        },
-        {
-          "name": "gstreamer1.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "1.28.8-1.fc44",
-          "toVersion": "1.28.9-1.fc44"
-        },
-        {
-          "name": "gstreamer1-devel.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "1.28.8-1.fc44",
-          "toVersion": "1.28.9-1.fc44"
-        },
-        {
-          "name": "gstreamer1-plugin-libav.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "1.28.8-1.fc44",
-          "toVersion": "1.28.9-1.fc44"
-        },
-        {
-          "name": "gstreamer1-plugin-openh264.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "1.28.8-1.fc44",
-          "toVersion": "1.28.9-1.fc44"
-        },
-        {
-          "name": "gstreamer1-plugins-bad-free.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "1.28.8-1.fc44",
-          "toVersion": "1.28.9-1.fc44"
-        },
-        {
-          "name": "gstreamer1-plugins-bad-free-libs.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "1.28.8-1.fc44",
-          "toVersion": "1.28.9-1.fc44"
-        },
-        {
-          "name": "gstreamer1-plugins-base.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "1.28.8-1.fc44",
-          "toVersion": "1.28.9-1.fc44"
-        },
-        {
-          "name": "gstreamer1-plugins-base-devel.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "1.28.8-1.fc44",
-          "toVersion": "1.28.9-1.fc44"
-        },
-        {
-          "name": "gstreamer1-plugins-good.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "1.28.8-1.fc44",
-          "toVersion": "1.28.9-1.fc44"
-        },
-        {
-          "name": "gstreamer1-plugins-good-gtk.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "1.28.8-1.fc44",
-          "toVersion": "1.28.9-1.fc44"
-        },
-        {
-          "name": "gstreamer1-plugins-good-qt6.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "1.28.8-1.fc44",
-          "toVersion": "1.28.9-1.fc44"
-        },
-        {
-          "name": "gstreamer1-plugins-ugly-free.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "1.28.8-1.fc44",
-          "toVersion": "1.28.9-1.fc44"
-        },
-        {
-          "name": "libsss_certmap.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "2.13.1-2.fc44",
-          "toVersion": "2.13.2-1.fc44"
-        },
-        {
-          "name": "libsss_idmap.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "2.13.1-2.fc44",
-          "toVersion": "2.13.2-1.fc44"
-        },
-        {
-          "name": "libsss_nss_idmap.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "2.13.1-2.fc44",
-          "toVersion": "2.13.2-1.fc44"
-        },
-        {
-          "name": "libsss_sudo.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "2.13.1-2.fc44",
-          "toVersion": "2.13.2-1.fc44"
-        },
-        {
-          "name": "mise.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "2026.11.4-1.fc44",
-          "toVersion": "2026.11.5-1.fc44"
-        },
-        {
-          "name": "mise-bash-completion.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "2026.11.4-1.fc44",
-          "toVersion": "2026.11.5-1.fc44"
-        },
-        {
-          "name": "mise-zsh-completion.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "2026.11.4-1.fc44",
-          "toVersion": "2026.11.5-1.fc44"
-        },
-        {
-          "name": "python3-typing-inspection.noarch",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "0.4.4-1.fc44",
-          "toVersion": "0.4.5-2.fc44"
-        },
-        {
-          "name": "rsync.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "3.5.1-1.fc44",
-          "toVersion": "3.5.2-2.fc44"
-        },
-        {
-          "name": "sssd-client.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "2.13.1-2.fc44",
-          "toVersion": "2.13.2-1.fc44"
-        },
-        {
-          "name": "sssd-common.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "2.13.1-2.fc44",
-          "toVersion": "2.13.2-1.fc44"
-        },
-        {
-          "name": "sssd-kcm.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "2.13.1-2.fc44",
-          "toVersion": "2.13.2-1.fc44"
-        },
-        {
-          "name": "sssd-krb5-common.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "2.13.1-2.fc44",
-          "toVersion": "2.13.2-1.fc44"
-        },
-        {
-          "name": "sssd-nfs-idmap.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "2.13.1-2.fc44",
-          "toVersion": "2.13.2-1.fc44"
-        },
-        {
-          "name": "sssd-proxy.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "2.13.1-2.fc44",
-          "toVersion": "2.13.2-1.fc44"
-        },
-        {
-          "name": "xen-libs.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "4.21.2-4.fc44",
-          "toVersion": "4.21.2-5.fc44"
-        },
-        {
-          "name": "xen-licenses.x86_64",
-          "repo": "system",
-          "backend": "dnf5",
-          "fromVersion": "4.21.2-4.fc44",
-          "toVersion": "4.21.2-5.fc44"
-        }
-      ]
+      "ts": 1794357042,
+      "packages": []
     },
-    "checkDurationSecs": 14,
+    "checkDurationSecs": 10,
     "hideWhenUpToDate": true,
     "launcherPromptDone": true,
     "pendingShellRunLog": {},
@@ -296,11 +50,40 @@
       {
         "seconds": 1,
         "items": 2
+      },
+      {
+        "seconds": 34,
+        "items": 35
+      },
+      {
+        "seconds": 212,
+        "items": 24
       }
     ],
-    "lastUpdateUnix": 1794182155,
-    "justUpdated": {},
-    "selfUpdateNotifiedVersion": "1.8.4"
+    "lastUpdateUnix": 1794351583,
+    "justUpdated": {
+      "plugin/dankDesktopWeather": {
+        "to": "",
+        "at": 1794329499021
+      },
+      "plugin/dankNotepadModule": {
+        "to": "",
+        "at": 1794329499021
+      },
+      "plugin/emojiPicker": {
+        "to": "",
+        "at": 1794351585177
+      },
+      "plugin/quickCapture": {
+        "to": "",
+        "at": 1794351585177
+      }
+    },
+    "selfUpdateNotifiedVersion": "1.8.4",
+    "rebootFlag": {
+      "bootId": "94cd75cf-b0c9-4422-a4cd-84cc8fa5e710",
+      "recommended": true
+    }
   },
   "quickCapture": {
     "enabled": true,
