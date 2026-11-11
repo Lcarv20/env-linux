@@ -345,11 +345,13 @@ printf '\n  %sLog:%s %s\n' "$C_GRY" "$C_RST" "$LOG_FILE"
 if [[ "$FAILED" == true ]]; then
     printf '  Fix the failure above, then re-run ./install (stages are idempotent).\n'
 else
-    printf '  %sNext steps%s\n' "$C_BLD" "$C_RST"
-    printf '  • reboot — greetd (dms-greeter → niri) takes over the console\n'
+    printf '\n  %s%sNext steps (run this and reboot):%s\n' "$C_BLD" "$C_YLW" "$C_RST"
+    printf '  %s1.%s Mirror wallpaper & theme to the login screen:\n' "$C_BLD" "$C_RST"
+    printf '     %s%sdms-greeter sync%s\n' "$C_BLD" "$C_CYN" "$C_RST"
+    printf '  %s2.%s Reboot into greetd (dms-greeter → niri):\n' "$C_BLD" "$C_RST"
+    printf '     %s%ssudo reboot%s\n' "$C_BLD" "$C_CYN" "$C_RST"
     [[ "$HOST_PROFILE" == "imac18-3" ]] && \
-    printf '  • iMac18,3: kernel args + DKMS audio need that reboot too\n'
-    printf '  • (optional) mirror wallpaper/theme to login screen: dms-greeter sync\n'
+    printf '     %s(iMac18,3: kernel args + DKMS audio also activate on reboot)%s\n' "$C_GRY" "$C_RST"
 fi
 ui_rule_bottom
 printf '\n'
