@@ -298,19 +298,35 @@ run_cmd() { # run_cmd DESCRIPTION COMMAND [ARGS...]
     local out rc=0
     out="$(mktemp)"
 
-    if [[ -t 1 ]]; then
-        # pure-bash braille spinner fallback
-        local spin='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏' i=0 cols
-        cols="$(tput cols 2>/dev/null || echo 80)"
+    if ui_tty; then
+        # Swimming fish animation (120ms interval)
+        local -a frames=(
+            ">))'>    "
+            " >))'>   "
+            "  >))'>  "
+            "   >))'> "
+            "    >))'>"
+            "    <'((<"
+            "   <'((< "
+            "  <'((<  "
+            " <'((<   "
+            "<'((<    "
+        )
+        local i=0 n=${#frames[@]} start=$SECONDS elapsed timer=""
+        _ui_cursor_hide
+        trap '_ui_cursor_show' RETURN
         "$@" >"$out" 2>&1 &
         local pid=$!
         while kill -0 "$pid" 2>/dev/null; do
-            i=$(( (i + 1) % ${#spin} ))
-            printf '\r  %s %s' "${spin:$i:1}" "$desc" >&2
-            sleep 0.08
+            elapsed=$(( SECONDS - start ))
+            (( elapsed > 0 )) && timer=" ${C_GRY}(${elapsed}s)${C_RST}" || timer=""
+            printf '\r\e[2K  %s%s%s %s%s' "$C_CYN" "${frames[i]}" "$C_RST" "$desc" "$timer" >/dev/tty
+            i=$(( (i + 1) % n ))
+            sleep 0.12
         done
         wait "$pid" || rc=$?
-        printf '\r%*s\r' "$cols" "" >&2
+        printf '\r\e[2K' >/dev/tty
+        _ui_cursor_show
     else
         printf '  %s…%s %s\n' "$C_GRY" "$C_RST" "$desc"
         "$@" >"$out" 2>&1 || rc=$?
