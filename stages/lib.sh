@@ -404,6 +404,16 @@ run_cmd() { # run_cmd DESCRIPTION COMMAND [ARGS...]
             "<'((<    "
         )
         local i=0 n=${#frames[@]} start=$SECONDS elapsed timer=""
+        local cols max_d d_disp
+        cols="$(tput cols 2>/dev/null </dev/tty || echo 80)"
+        (( cols > 0 )) || cols=80
+        max_d=$(( cols - 24 ))
+        (( max_d < 20 )) && max_d=20
+        d_disp="$desc"
+        if (( ${#desc} > max_d )); then
+            d_disp="${desc:0:$(( max_d - 3 ))}..."
+        fi
+
         _ui_cursor_hide
         trap '_ui_cursor_show' RETURN
         "$@" >"$out" 2>&1 &
@@ -411,7 +421,7 @@ run_cmd() { # run_cmd DESCRIPTION COMMAND [ARGS...]
         while kill -0 "$pid" 2>/dev/null; do
             elapsed=$(( SECONDS - start ))
             (( elapsed > 0 )) && timer=" ${C_GRY}(${elapsed}s)${C_RST}" || timer=""
-            printf '\r\e[2K  %s%s%s %s%s' "$C_CYN" "${frames[i]}" "$C_RST" "$desc" "$timer" >/dev/tty
+            printf '\r\e[2K  %s%s%s %s%s' "$C_CYN" "${frames[i]}" "$C_RST" "$d_disp" "$timer" >/dev/tty
             i=$(( (i + 1) % n ))
             sleep 0.12
         done

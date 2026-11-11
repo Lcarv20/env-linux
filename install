@@ -146,7 +146,7 @@ stage_description() {
     case "$1" in
         00-repos.sh)        echo "RPM Fusion (free/nonfree), Terra, Dux COPR" ;;
         10-desktop-base.sh) echo "PipeWire, portals, fonts, toolkits, mise CLI tools, antidote, zsh" ;;
-        20-niri-dms.sh)     echo "Verify niri / dms / greeter binaries, remove legacy strays" ;;
+        20-niri-dms.sh)     echo "Verify Niri, Dux Shell, greeter & helper desktop binaries" ;;
         30-assets.sh)       echo "Wallpapers, fonts, JuxCursor, dfiles-shell, zoom daemons" ;;
         35-plugins.sh)      echo "Restore registry plugins from lockfile, link custom plugin repos" ;;
         40-dotfiles.sh)     echo "Stow niri, dms, portals, environment.d, systemd-user, scripts" ;;
@@ -174,9 +174,9 @@ stage_details() {
             ui_item "Shell & CLI"    "zsh (default login shell), Antidote, mise + core tools (nvim, fzf, rg, fd, bat, delta, lazygit, starship, zoxide, lsd, gh)"
             ;;
         20-niri-dms.sh)
-            ui_why "Ensures the upstream Dux Shell binaries exist and cleans old manual installs that shadow RPM updates."
-            ui_item "Verify stack"     "Checks niri, dms, dms-greeter, dfiles, matugen & wtype are installed on PATH"
-            ui_item "Clean ~/.local/bin" "Removes legacy unowned binaries (old wtype/swww) so /usr/bin RPMs take precedence"
+            ui_why "Verifies the official Dux Shell environment and its required desktop tools are present before configuring dotfiles."
+            ui_item "Compositor & Shell" "Checks niri, dms, dms-greeter & dfiles are executable on PATH"
+            ui_item "Desktop Tooling"    "Checks matugen (Material 3 generator) & wtype (Wayland keystroke tool)"
             ;;
         30-assets.sh)
             ui_why "Fetches heavy binary assets (wallpapers, cursors, fonts, QML shells) kept out of git history."

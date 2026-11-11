@@ -32,7 +32,7 @@ else
     to_install=()
     $rf_free || to_install+=("https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORA_VER}.noarch.rpm")
     $rf_nonfree || to_install+=("https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORA_VER}.noarch.rpm")
-    run_cmd "Enable RPM Fusion (${to_install[*]})" \
+    run_cmd "Enable RPM Fusion (free + nonfree)" \
         sudo dnf install -y "${to_install[@]}" \
         || ui_warn "RPM Fusion install returned non-zero — may already be enabled or network error; continuing."
 fi
