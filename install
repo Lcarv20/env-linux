@@ -23,8 +23,6 @@ Options:
   -h, --help            Show this help and exit.
   --dry-run             Print every action without executing anything.
   -y, --yes             Non-interactive: run all stages without prompting.
-  --no-tui              Disable the OpenTUI graphical interface and use pure bash.
-  --demo                Demo mode: dry-run with paced steps to play Package Snake!
   --host=HOST           auto (default) | imac18-3 | vm | none
                         auto detects via DMI product name + systemd-detect-virt.
   --with-extras         Add the extras stage (60: clang, mise runtimes, udev).
@@ -51,15 +49,12 @@ EOF
 }
 
 # ------------------------------------------------------------------ args -----
-ORIG_ARGS=("$@")
 DRY_RUN=false
 ASSUME_YES=false
 PROFILE=""
 HOST_FLAG="auto"
 WITH_EXTRAS=false
 WITH_MANGO=false
-NO_TUI=false
-DEMO=false
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -70,8 +65,6 @@ while [[ $# -gt 0 ]]; do
         --host=*)          HOST_FLAG="${1#*=}"; shift ;;
         --with-extras)     WITH_EXTRAS=true; shift ;;
         --with-mango)      WITH_MANGO=true; shift ;;
-        --no-tui)          NO_TUI=true; shift ;;
-        --demo)            DEMO=true; DRY_RUN=true; export ENV_TUI_DEMO=1; shift ;;
         *) ui_error "Unknown option: $1 (see --help)"; exit 1 ;;
     esac
 done
@@ -88,36 +81,6 @@ esac
 if (( EUID == 0 )); then
     ui_error "Run ./install as your normal user — stages call sudo only where needed."
     exit 1
-fi
-
-# ------------------------------------------------------------------ TUI launch
-if [[ "${NO_TUI:-false}" != "true" && -t 0 && -t 1 ]]; then
-    BUN_BIN=""
-    if have bun; then
-        BUN_BIN="$(command -v bun)"
-    elif [[ -x "$HOME/.local/share/mise/installs/bun/latest/bin/bun" ]]; then
-        BUN_BIN="$HOME/.local/share/mise/installs/bun/latest/bin/bun"
-    elif [[ -x "$HOME/.local/share/mise/shims/bun" ]]; then
-        BUN_BIN="$HOME/.local/share/mise/shims/bun"
-    fi
-
-    TUI_BIN="$DOTS/tui/env-tui"
-    TUI_SRC="$DOTS/tui/index.ts"
-
-    if [[ -x "$TUI_BIN" ]]; then
-        if [[ "$DRY_RUN" != "true" && $EUID -ne 0 ]]; then
-            sudo -v 2>/dev/null || true
-        fi
-        exec "$TUI_BIN" "${ORIG_ARGS[@]}"
-    elif [[ -n "$BUN_BIN" && -f "$TUI_SRC" ]]; then
-        if [[ ! -d "$DOTS/tui/node_modules" ]]; then
-            "$BUN_BIN" install --cwd "$DOTS/tui" --silent || true
-        fi
-        if [[ "$DRY_RUN" != "true" && $EUID -ne 0 ]]; then
-            sudo -v 2>/dev/null || true
-        fi
-        exec "$BUN_BIN" "$TUI_SRC" "${ORIG_ARGS[@]}"
-    fi
 fi
 
 # Fresh log for every run (setup.log is gitignored).

@@ -4,9 +4,3 @@ setup.log
 
 # System
 .DS_Store
-
-# TUI
-tui/node_modules/
-tui/env-tui
-tui/dist/
-

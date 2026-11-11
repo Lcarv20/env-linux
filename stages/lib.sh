@@ -81,21 +81,6 @@ ensure_sudo() { # make sure we have cached sudo credentials (skipped in dry-run)
 # After an answer, every prompt collapses into ONE summary line:
 #     ? Proceed with this plan? › Yes
 
-_tui_emit() {
-    [[ "${ENV_TUI:-}" == "1" ]] || return 0
-    printf '@@ENV_TUI@@%s\n' "$1"
-}
-
-_json_str() {
-    local s="$1"
-    s="${s//\\/\\\\}"
-    s="${s//\"/\\\"}"
-    s="${s//$'\n'/\\n}"
-    s="${s//$'\r'/}"
-    s="${s//$'\t'/\\t}"
-    printf '%s' "$s"
-}
-
 ui_tty() { # ui_tty -> rc 0 when we can talk to a human
     [[ -t 2 ]] || return 1
     { : </dev/tty; } 2>/dev/null
@@ -103,10 +88,6 @@ ui_tty() { # ui_tty -> rc 0 when we can talk to a human
 
 ui_header() { # section banner
     log STAGE "=== $* ==="
-    if [[ "${ENV_TUI:-}" == "1" ]]; then
-        _tui_emit "{\"event\":\"header\",\"title\":\"$(_json_str "$*")\"}"
-        return 0
-    fi
     # When ./install runs a stage it already drew a stage card with the same
     # title — skip the stage's own first banner so nothing is shown twice.
     if [[ "${ENV_INSTALL_NESTED:-}" == "1" && -z "${ENV_UI_HEADER_SHOWN:-}" ]]; then
@@ -120,55 +101,16 @@ ui_header() { # section banner
 ui_stage_card() { # ui_stage_card INDEX TOTAL TITLE DESCRIPTION
     local idx="$1" total="$2" title="$3" desc="$4"
     log STAGE "=== [$idx/$total] $title ==="
-    if [[ "${ENV_TUI:-}" == "1" ]]; then
-        _tui_emit "{\"event\":\"stage_start\",\"index\":$idx,\"total\":$total,\"title\":\"$(_json_str "$title")\",\"description\":\"$(_json_str "$desc")\"}"
-        return 0
-    fi
     printf '\n %s╭─%s %s[%s/%s]%s %s%s%s\n' \
         "$C_MAG" "$C_RST" "$C_GRY" "$idx" "$total" "$C_RST" "$C_BLD$C_MAG" "$title" "$C_RST"
     printf ' %s╰─%s %s%s%s\n' "$C_MAG" "$C_RST" "$C_GRY" "$desc" "$C_RST"
 }
 
-ui_step()  {
-    log OK "$*"
-    if [[ "${ENV_TUI:-}" == "1" ]]; then
-        _tui_emit "{\"event\":\"step\",\"message\":\"$(_json_str "$*")\"}"
-        return 0
-    fi
-    printf '  %s✔%s %s\n' "$C_GRN" "$C_RST" "$*"
-}
-ui_info()  {
-    log INFO "$*"
-    if [[ "${ENV_TUI:-}" == "1" ]]; then
-        _tui_emit "{\"event\":\"info\",\"message\":\"$(_json_str "$*")\"}"
-        return 0
-    fi
-    printf '  %s•%s %s\n' "$C_CYN" "$C_RST" "$*"
-}
-ui_warn()  {
-    log WARN "$*"
-    if [[ "${ENV_TUI:-}" == "1" ]]; then
-        _tui_emit "{\"event\":\"warn\",\"message\":\"$(_json_str "$*")\"}"
-        return 0
-    fi
-    printf '  %s⚠%s  %s\n' "$C_YLW" "$C_RST" "$*"
-}
-ui_error() {
-    log ERROR "$*"
-    if [[ "${ENV_TUI:-}" == "1" ]]; then
-        _tui_emit "{\"event\":\"error\",\"message\":\"$(_json_str "$*")\"}"
-        return 0
-    fi
-    printf '  %s✖%s %s\n' "$C_RED" "$C_RST" "$*" >&2
-}
-ui_dry()   {
-    log DRY "$*"
-    if [[ "${ENV_TUI:-}" == "1" ]]; then
-        _tui_emit "{\"event\":\"dry\",\"message\":\"$(_json_str "$*")\"}"
-        return 0
-    fi
-    printf '  %s[dry-run]%s %s\n' "$C_YLW" "$C_RST" "$*"
-}
+ui_step()  { printf '  %s✔%s %s\n' "$C_GRN" "$C_RST" "$*"; log OK "$*"; }
+ui_info()  { printf '  %s•%s %s\n' "$C_CYN" "$C_RST" "$*"; log INFO "$*"; }
+ui_warn()  { printf '  %s⚠%s  %s\n' "$C_YLW" "$C_RST" "$*"; log WARN "$*"; }
+ui_error() { printf '  %s✖%s %s\n' "$C_RED" "$C_RST" "$*" >&2; log ERROR "$*"; }
+ui_dry()   { printf '  %s[dry-run]%s %s\n' "$C_YLW" "$C_RST" "$*"; log DRY "$*"; }
 
 # Read one key from the terminal; arrows / escape sequences normalized to
 # up|down|left|right|enter|space|tab|esc or the literal character.
@@ -345,33 +287,6 @@ ui_choose_multi() { # ui_choose_multi PROMPT opt1 opt2... -> one pick per line
 run_cmd() { # run_cmd DESCRIPTION COMMAND [ARGS...]
     local desc="$1"; shift
     log RUN "$*"
-
-    if [[ "${ENV_TUI:-}" == "1" ]]; then
-        _tui_emit "{\"event\":\"cmd_start\",\"description\":\"$(_json_str "$desc")\",\"command\":\"$(_json_str "$*")\"}"
-        if is_dry_run; then
-            if [[ "${ENV_TUI_DEMO:-}" == "1" ]]; then
-                sleep 0.6
-            fi
-            ui_dry "$desc ${C_GRY}($*)${C_RST}"
-            _tui_emit "{\"event\":\"cmd_end\",\"description\":\"$(_json_str "$desc")\",\"exit_code\":0}"
-            return 0
-        fi
-
-        local out rc=0
-        out="$(mktemp)"
-        "$@" >"$out" 2>&1 || rc=$?
-        cat "$out" >> "$LOG_FILE" 2>/dev/null || true
-        if (( rc == 0 )); then
-            ui_step "$desc"
-        else
-            ui_error "$desc failed (exit $rc)"
-            log FAIL "$desc (rc=$rc)"
-        fi
-        _tui_emit "{\"event\":\"cmd_end\",\"description\":\"$(_json_str "$desc")\",\"exit_code\":$rc}"
-        rm -f "$out"
-        return "$rc"
-    fi
-
     if is_dry_run; then
         ui_dry "$desc ${C_GRY}($*)${C_RST}"
         return 0
