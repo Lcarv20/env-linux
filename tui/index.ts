@@ -178,18 +178,15 @@ for (const s of ALL_STAGES_DEF) {
 }
 
 // ---------------------------------------------------------------- Visual Theme
-const C_BG = RGBA.fromHex("#0d1117");
-const C_PANEL_BG = RGBA.fromHex("#161b22");
-const C_HUD_BG = RGBA.fromHex("#1c2128");
-const C_BORDER = RGBA.fromHex("#30363d");
+const C_TRANSPARENT = RGBA.fromInts(0, 0, 0, 0);
+const C_BORDER = RGBA.fromHex("#484f58");
 const C_BORDER_MAGENTA = RGBA.fromHex("#bc8cff");
-const C_BORDER_GREEN = RGBA.fromHex("#238636");
-const C_BORDER_GOLD = RGBA.fromHex("#d29922");
-const C_BORDER_RED = RGBA.fromHex("#da3633");
+const C_BORDER_GREEN = RGBA.fromHex("#3fb950");
 
-const C_TEXT = RGBA.fromHex("#c9d1d9");
-const C_TEXT_MUTED = RGBA.fromHex("#6e7681");
+const C_TEXT = RGBA.fromHex("#e6edf3");
+const C_TEXT_MUTED = RGBA.fromHex("#8b949e");
 const C_TEXT_WHITE = RGBA.fromHex("#ffffff");
+const C_TEXT_DARK = RGBA.fromHex("#0d1117");
 const C_GREEN = RGBA.fromHex("#3fb950");
 const C_BRIGHT_GREEN = RGBA.fromHex("#56d364");
 const C_MAGENTA = RGBA.fromHex("#bc8cff");
@@ -400,14 +397,13 @@ class SnakeGame {
 
   render(fb: FrameBufferRenderable): void {
     const buf = fb.frameBuffer;
-    buf.clear(C_BG);
+    buf.clear(C_TRANSPARENT);
 
-    // Row 0: HUD Bar
-    buf.fillRect(0, 0, this.width, 1, C_HUD_BG);
+    // Row 0: HUD Bar (transparent background)
     const scoreStr = `Score: ${this.score}`;
     const lenStr = `Len: ${this.snake.length}`;
     const nextPkgStr = `Next pkg: ${this.currentFoodPkg} (+10)`;
-    const modeStr = this.isArcade ? "ARCADE MODE" : "PLAYING";
+    const modeStr = this.isArcade ? "ARCADE MODE" : this.isPaused ? "PAUSED" : "PLAYING";
 
     buf.drawText(scoreStr, 1, 0, C_GOLD);
     buf.drawText(lenStr, 13, 0, C_TEXT_WHITE);
@@ -450,6 +446,7 @@ class SnakeGame {
       const head = this.snake[0];
       buf.drawText("◆", head.x, head.y, C_BRIGHT_GREEN);
     }
+    fb.requestRender();
   }
 }
 
@@ -506,6 +503,7 @@ class OpenTuiInstaller {
     this.renderer = await createCliRenderer({
       exitOnCtrlC: true,
       useMouse: false,
+      backgroundColor: "transparent",
     });
 
     const termW = this.renderer.width || 80;
@@ -513,6 +511,7 @@ class OpenTuiInstaller {
 
     this.setupLayout(termW, termH);
     this.setupInput();
+    this.tick();
 
     // Redraw loop (~16 fps / 60ms)
     setInterval(() => {
@@ -520,7 +519,11 @@ class OpenTuiInstaller {
     }, 60);
 
     this.renderer.on("resize", (dim: { width: number; height: number }) => {
-      this.handleResize(dim.width, dim.height);
+      if (dim && typeof dim.width === "number" && typeof dim.height === "number") {
+        this.handleResize(dim.width, dim.height);
+      } else {
+        this.handleResize(this.renderer.width || 80, this.renderer.height || 24);
+      }
     });
   }
 
@@ -542,13 +545,16 @@ class OpenTuiInstaller {
     this.headerBox = new BoxRenderable(this.renderer, {
       width,
       height: headerHeight,
-      borderStyle: "single",
+      borderStyle: "rounded",
       borderColor: C_BORDER_MAGENTA,
-      title: "╭─ env-linux · Fedora → Niri + Dux Shell ─╮",
+      backgroundColor: "transparent",
+      shouldFill: false,
+      title: " env-linux · Fedora → Niri + Dux Shell ",
     });
     this.headerFB = new FrameBufferRenderable(this.renderer, {
       width: Math.max(20, width - 2),
       height: 1,
+      respectAlpha: true,
     });
     this.headerBox.add(this.headerFB);
 
@@ -557,19 +563,24 @@ class OpenTuiInstaller {
       flexDirection: "row",
       width,
       height: bodyHeight,
+      backgroundColor: "transparent",
+      shouldFill: false,
     });
 
     // Left Panel (Stages)
     this.leftBox = new BoxRenderable(this.renderer, {
       width: leftWidth,
       height: bodyHeight,
-      borderStyle: "single",
+      borderStyle: "rounded",
       borderColor: C_BORDER,
-      title: "Stages",
+      backgroundColor: "transparent",
+      shouldFill: false,
+      title: " Stages ",
     });
     this.leftFB = new FrameBufferRenderable(this.renderer, {
       width: Math.max(10, leftWidth - 2),
       height: Math.max(4, bodyHeight - 2),
+      respectAlpha: true,
     });
     this.leftBox.add(this.leftFB);
 
@@ -578,19 +589,24 @@ class OpenTuiInstaller {
       flexDirection: "column",
       width: rightWidth,
       height: bodyHeight,
+      backgroundColor: "transparent",
+      shouldFill: false,
     });
 
     // Right Top (Log & Action)
     this.logBox = new BoxRenderable(this.renderer, {
       width: rightWidth,
       height: logHeight,
-      borderStyle: "single",
+      borderStyle: "rounded",
       borderColor: C_BORDER,
-      title: "Stage & Action Log",
+      backgroundColor: "transparent",
+      shouldFill: false,
+      title: " Stage & Action Log ",
     });
     this.logFB = new FrameBufferRenderable(this.renderer, {
       width: Math.max(10, rightWidth - 2),
       height: Math.max(4, logHeight - 2),
+      respectAlpha: true,
     });
     this.logBox.add(this.logFB);
 
@@ -598,15 +614,18 @@ class OpenTuiInstaller {
     this.snakeBox = new BoxRenderable(this.renderer, {
       width: rightWidth,
       height: snakeHeight,
-      borderStyle: "single",
+      borderStyle: "rounded",
       borderColor: C_BORDER_GREEN,
-      title: "🐍 PACKAGE SNAKE",
-      bottomTitle: "WASD: Steer · P: Arcade",
+      backgroundColor: "transparent",
+      shouldFill: false,
+      title: " 🐍 PACKAGE SNAKE ",
+      bottomTitle: " WASD: Steer · P: Arcade ",
       bottomTitleAlignment: "right",
     });
     this.snakeFB = new FrameBufferRenderable(this.renderer, {
       width: Math.max(10, rightWidth - 2),
       height: Math.max(4, snakeHeight - 2),
+      respectAlpha: true,
     });
     this.snake.resize(this.snakeFB.width, this.snakeFB.height);
     this.snakeBox.add(this.snakeFB);
@@ -623,22 +642,24 @@ class OpenTuiInstaller {
 
   handleResize(width: number, height: number): void {
     this.setupLayout(width, height);
+    this.tick();
   }
 
   setupInput(): void {
-    this.renderer.keyInput.on("keypress", (event) => {
-      const name = (event.name || "").toLowerCase();
+    this.renderer.keyInput.on("keypress", (event: any) => {
+      const name = String(event.name || "").toLowerCase();
+      const seq = String(event.sequence || "");
 
       // Ctrl+C handling
-      if (name === "c" && event.ctrl) {
+      if ((name === "c" && event.ctrl) || seq === "\x03") {
         this.destroyAndExit(0);
         return;
       }
 
-      // Snake Steer (WASD works ANYTIME, even during button prompts!)
+      // Snake Steer (WASD works ANYTIME)
       if (name === "w") this.snake.changeDir({ x: 0, y: -1 });
-      else if (name === "s") this.snake.changeDir({ x: 0, y: 1 });
-      else if (name === "a") this.snake.changeDir({ x: -1, y: 0 });
+      else if (name === "s" && !this.activePrompt) this.snake.changeDir({ x: 0, y: 1 });
+      else if (name === "a" && !this.activePrompt) this.snake.changeDir({ x: -1, y: 0 });
       else if (name === "d") this.snake.changeDir({ x: 1, y: 0 });
 
       // Toggle Arcade mode
@@ -649,44 +670,77 @@ class OpenTuiInstaller {
           C_CYAN,
           3000
         );
+        this.tick();
         return;
       }
 
-      // Arrow keys: if active prompt exists, left/right navigate buttons; up/down steer snake
+      // Arrow keys & Enter/Hotkeys when active prompt exists
       if (this.activePrompt) {
         if (name === "left" || name === "h") {
           this.activePrompt.selectedIndex =
             (this.activePrompt.selectedIndex - 1 + this.activePrompt.options.length) %
             this.activePrompt.options.length;
+          this.tick();
           return;
         } else if (name === "right" || name === "l" || name === "tab") {
           this.activePrompt.selectedIndex =
             (this.activePrompt.selectedIndex + 1) % this.activePrompt.options.length;
+          this.tick();
           return;
-        } else if (name === "enter" || name === "space") {
+        } else if (
+          name === "return" ||
+          name === "enter" ||
+          name === "linefeed" ||
+          name === "kpenter" ||
+          name === "space" ||
+          seq === "\r" ||
+          seq === "\n"
+        ) {
           const choice = this.activePrompt.options[this.activePrompt.selectedIndex].key;
           const resolve = this.activePrompt.resolve;
           this.activePrompt = null;
+          this.tick();
           resolve(choice);
+          return;
+        } else if (name === "escape") {
+          this.destroyAndExit(0);
           return;
         }
 
-        // Hotkeys for options
+        // Number keys 1..9 or first-letter hotkeys for options
+        if (/^[1-9]$/.test(name)) {
+          const idx = parseInt(name, 10) - 1;
+          if (idx >= 0 && idx < this.activePrompt.options.length) {
+            const choice = this.activePrompt.options[idx].key;
+            const resolve = this.activePrompt.resolve;
+            this.activePrompt = null;
+            this.tick();
+            resolve(choice);
+            return;
+          }
+        }
+
         for (const opt of this.activePrompt.options) {
           if (name === opt.key.toLowerCase() || name === opt.label.charAt(0).toLowerCase()) {
             const resolve = this.activePrompt.resolve;
             this.activePrompt = null;
+            this.tick();
             resolve(opt.key);
             return;
           }
         }
       } else {
+        if (name === "q" || name === "escape") {
+          this.destroyAndExit(0);
+          return;
+        }
         // Arrow keys steer snake when no prompt is capturing horizontal arrows
         if (name === "up") this.snake.changeDir({ x: 0, y: -1 });
         else if (name === "down") this.snake.changeDir({ x: 0, y: 1 });
         else if (name === "left") this.snake.changeDir({ x: -1, y: 0 });
         else if (name === "right") this.snake.changeDir({ x: 1, y: 0 });
       }
+      this.tick();
     });
   }
 
@@ -698,6 +752,7 @@ class OpenTuiInstaller {
         selectedIndex: 0,
         resolve,
       };
+      this.tick();
     });
   }
 
@@ -718,12 +773,12 @@ class OpenTuiInstaller {
     this.renderLogPanel();
     this.renderSnake();
 
-    this.renderer.requestAnimationFrame(() => {});
+    this.renderer.requestRender();
   }
 
   renderHeader(): void {
     const buf = this.headerFB.frameBuffer;
-    buf.clear(C_PANEL_BG);
+    buf.clear(C_TRANSPARENT);
 
     const w = this.headerFB.width;
     const virtStr = virtType ? ` (virt: ${virtType})` : "";
@@ -737,11 +792,12 @@ class OpenTuiInstaller {
 
     const scoreX = Math.max(w - scoreStr.length - 1, 55);
     buf.drawText(scoreStr, scoreX, 0, C_GOLD);
+    this.headerFB.requestRender();
   }
 
   renderStages(): void {
     const buf = this.leftFB.frameBuffer;
-    buf.clear(C_BG);
+    buf.clear(C_TRANSPARENT);
 
     const spin = SPINNER_CHARS[this.spinnerIndex];
     let y = 1;
@@ -777,11 +833,12 @@ class OpenTuiInstaller {
 
       y += 2;
     }
+    this.leftFB.requestRender();
   }
 
   renderLogPanel(): void {
     const buf = this.logFB.frameBuffer;
-    buf.clear(C_BG);
+    buf.clear(C_TRANSPARENT);
 
     const w = this.logFB.width;
     let y = 0;
@@ -815,29 +872,23 @@ class OpenTuiInstaller {
       y++;
     }
 
-    // Interactive Button Bar (if prompt active)
+    // Interactive Button Bar (if prompt active — no background fill!)
     if (this.activePrompt) {
-      buf.drawText(this.activePrompt.title, 1, y++, C_TEXT_WHITE);
+      buf.drawText(`? ${this.activePrompt.title}  (←/→ move · Enter select)`, 1, y++, C_TEXT_WHITE);
       let btnX = 1;
       for (let i = 0; i < this.activePrompt.options.length; i++) {
         const opt = this.activePrompt.options[i];
         const isSelected = i === this.activePrompt.selectedIndex;
-        const btnStr = `[ ${opt.label} ]`;
+        const btnStr = isSelected ? `● [ ${opt.label} ]` : `○   ${opt.label}  `;
 
-        if (isSelected) {
-          buf.fillRect(btnX, y, btnStr.length, 1, C_MAGENTA);
-          buf.drawText(btnStr, btnX, y, C_TEXT_WHITE);
-        } else {
-          buf.fillRect(btnX, y, btnStr.length, 1, C_HUD_BG);
-          buf.drawText(btnStr, btnX, y, C_TEXT);
-        }
-        btnX += btnStr.length + 2;
+        buf.drawText(btnStr, btnX, y, isSelected ? C_MAGENTA : C_TEXT_MUTED);
+        btnX += btnStr.length + 3;
       }
       y += 2;
     }
 
-    // Divider
-    buf.fillRect(1, y++, w - 2, 1, C_BORDER);
+    // Thin Line Divider (no solid background block)
+    buf.drawText("─".repeat(Math.max(1, w - 2)), 1, y++, C_BORDER);
 
     // Scrollable Feed of steps
     const maxFeedLines = Math.max(1, this.logFB.height - y);
@@ -846,6 +897,7 @@ class OpenTuiInstaller {
       if (y >= this.logFB.height) break;
       buf.drawText(item.text.slice(0, w - 2), 1, y++, item.color);
     }
+    this.logFB.requestRender();
   }
 
   renderSnake(): void {
