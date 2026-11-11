@@ -35,11 +35,10 @@ Examples:
   ./install --host=vm --dry-run
 
 Stages:
-  00-repos        RPM Fusion, Terra, COPRs (DMS & DankLinux)
+  00-repos        RPM Fusion, Terra, COPR (duxlabs/dms)
   10-desktop-base Core desktop packages (PipeWire audio, portals, fonts, toolkits, mise CLI tools, zsh)
-  20-niri-dms     Verify Niri & DMS binaries, clean legacy paths
   30-assets       56 wallpapers, fonts, JuxCursor, dfiles-shell, zoom daemons
-  35-plugins      DMS plugins (restore 5 registry plugins, clone & link custom repos)
+  35-plugins      DMS plugins (restore registry plugins, clone & link custom repos)
   40-dotfiles     Stow packages (niri, dms, portals [file-picker pin], environment.d [Wayland/cursor], systemd-user, scripts)
   45-own-software Personal tools (web-app-installer: turn websites into desktop apps)
   50-services     Greetd display manager (dms-greeter), graphical session, user systemd units
@@ -110,19 +109,19 @@ ui_info "Machine: ${DMI_PRODUCT}${VIRT_NOTE} · host profile: ${C_BLD}$HOST_PROF
 
 # -------------------------------------------------------- preflight / dux -----
 check_dux_installed() {
-    have dms && have niri && have dms-greeter
+    have dms && have niri && have dms-greeter && have dfiles && have matugen
 }
 
 if check_dux_installed; then
     ui_step "Official Dux Shell stack detected ($(dms version 2>/dev/null || echo "installed"))"
 elif ! is_dry_run; then
-    ui_error "Dux Shell stack not detected (dms, niri, dms-greeter missing)."
+    ui_error "Dux Shell stack not detected (dms, niri, dms-greeter, dfiles, matugen)."
     printf '\n  %s\n' "Please install the official Dux Shell stack first by running:"
     printf '    %s%s%scurl -fsSL https://install.duxlabs.dev | sh%s\n\n' "$C_BLD" "$C_CYN" "" "$C_RST"
     printf '  %s\n\n' "Once installed, re-run ./install to apply your customized desktop environment."
     exit 1
 else
-    ui_dry "preflight: check for official Dux stack (dms, niri, dms-greeter)"
+    ui_dry "preflight: check for official Dux stack (dms, niri, dms-greeter, dfiles, matugen)"
 fi
 
 # ---------------------------------------------------------------- stages -----
@@ -130,7 +129,6 @@ stage_title() {
     case "$1" in
         00-repos.sh)        echo "Repositories" ;;
         10-desktop-base.sh) echo "Desktop base" ;;
-        20-niri-dms.sh)     echo "Niri + Dux Shell check" ;;
         30-assets.sh)       echo "Assets" ;;
         35-plugins.sh)      echo "DMS plugins" ;;
         40-dotfiles.sh)     echo "Dotfiles" ;;
@@ -146,7 +144,6 @@ stage_description() {
     case "$1" in
         00-repos.sh)        echo "RPM Fusion (free/nonfree), Terra, Dux COPR" ;;
         10-desktop-base.sh) echo "PipeWire, portals, fonts, toolkits, mise CLI tools, antidote, zsh" ;;
-        20-niri-dms.sh)     echo "Verify Niri, Dux Shell, greeter & helper desktop binaries" ;;
         30-assets.sh)       echo "Wallpapers, fonts, JuxCursor, dfiles-shell, zoom daemons" ;;
         35-plugins.sh)      echo "Restore registry plugins from lockfile, link custom plugin repos" ;;
         40-dotfiles.sh)     echo "Stow niri, dms, portals, environment.d, systemd-user, scripts" ;;
@@ -172,11 +169,6 @@ stage_details() {
             ui_item "Audio & System" "PipeWire + WirePlumber, BlueZ Bluetooth, NetworkManager Wi-Fi, brightnessctl, upower"
             ui_item "Portals & UI"   "xdg-desktop-portal (gtk/gnome), polkit, GTK3/4, Qt6 Wayland, Noto & JetBrains Mono fonts"
             ui_item "Shell & CLI"    "zsh (default login shell), Antidote, mise + core tools (nvim, fzf, rg, fd, bat, delta, lazygit, starship, zoxide, lsd, gh)"
-            ;;
-        20-niri-dms.sh)
-            ui_why "Verifies the official Dux Shell environment and its required desktop tools are present before configuring dotfiles."
-            ui_item "Compositor & Shell" "Checks niri, dms, dms-greeter & dfiles are executable on PATH"
-            ui_item "Desktop Tooling"    "Checks matugen (Material 3 generator) & wtype (Wayland keystroke tool)"
             ;;
         30-assets.sh)
             ui_why "Fetches heavy binary assets (wallpapers, cursors, fonts, QML shells) kept out of git history."
@@ -243,7 +235,7 @@ mapfile -t ALL_STAGES < <(cd "$DOTS/stages" && ls [0-9]*.sh 2>/dev/null | sort)
 ((${#ALL_STAGES[@]} > 0)) || { ui_error "no stage scripts found in $DOTS/stages"; exit 1; }
 
 # Canonical stages list
-ALL_STAGE_FILES=("00-repos.sh" "10-desktop-base.sh" "20-niri-dms.sh" "30-assets.sh"
+ALL_STAGE_FILES=("00-repos.sh" "10-desktop-base.sh" "30-assets.sh"
                  "35-plugins.sh" "40-dotfiles.sh" "45-own-software.sh" "50-services.sh")
 [[ "$WITH_EXTRAS" == "true" ]] && ALL_STAGE_FILES+=("60-extras.sh")
 ALL_STAGE_FILES+=("90-hardware.sh")

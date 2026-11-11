@@ -29,8 +29,8 @@ The installer detects your hardware (iMac18,3 vs VM vs generic), shows a plan
 
 ```
 manifest/   package lists (copr · dnf-core · dnf-extras · flatpak · mise)
-stages/     00-repos → 10-desktop-base → 20-niri-dms → 30-assets →
-            40-dotfiles → 50-services → 60-extras → 90-hardware
+stages/     00-repos → 10-desktop-base → 30-assets → 35-plugins →
+            40-dotfiles → 45-own-software → 50-services → 60-extras → 90-hardware
 system/     root-owned files: greetd, greeter niri configs, udev, patches
 hosts/      imac18-3 (kernel args, BT rescue, DKMS audio, 5K outputs)
             vm (guest agents)
