@@ -1,8 +1,0 @@
-// Emoji picker — DMS plugin integration (emojiPicker).
-//
-// Mod+Ctrl+Space toggles the DMS emojiPicker plugin via IPC.
-binds {
-    Mod+Ctrl+Space hotkey-overlay-title="Emoji Picker" {
-        spawn "dms" "ipc" "call" "emojiPicker" "toggle";
-    }
-}

@@ -179,11 +179,10 @@ stage_details() {
             ui_item "Helper binaries" "Installs bundled zoom/helper daemons into ~/.local/bin"
             ;;
         35-plugins.sh)
-            ui_why "Restores official Dux Shell widgets and clones/links your custom Material 3 & hardware plugins."
+            ui_why "Restores official Dux Shell widgets and clones/links your custom Material 3 plugins."
             ui_item "Registry plugins"   "Restores official plugins from dms/.config/dms/plugins.lock.json"
             ui_item "dms-dynamic-cursor" "Clones & links SVG cursor plugin tinted to wallpaper accent"
             ui_item "dms-chrome-theme"   "Clones & links live Material 3 theme injector for Chrome/Brave"
-            ui_item "dms-cpufreq"        "Clones & links CpuFreq governor & turbo-boost bar widget"
             ;;
         40-dotfiles.sh)
             ui_why "Symlinks tracked desktop configs from ~/env-linux into \$HOME and seeds default theme state."

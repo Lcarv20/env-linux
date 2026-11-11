@@ -13,16 +13,16 @@ portable dev-tool dotfiles (nvim, zsh, ghostty, …).
 
 ```
 install              Executable TUI entry point (pure bash, no deps; prompts on /dev/tty)
-manifest/            Package lists: copr, dnf-core, dnf-extras, flatpak-extras,
-                     mise-core, mise-extras — single source of truth.
+manifest/            Package lists: copr, dnf-core, dnf-extras, mise-core,
+                     mise-extras, plugins — single source of truth.
 stages/              Numbered installer stages (00-repos → 90-hardware);
                      stages/lib.sh is the shared library (UI, logging, run_cmd).
 system/              Root-owned files shipped by the repo (greetd config,
-                     greeter niri configs, udev rules, dfiles-shell patcher).
+                     greeter niri configs, dfiles-shell patcher).
 hosts/               Per-host hardware quirks (imac18-3, vm) applied by
                      stages/90-hardware.sh → hosts/<profile>/apply.sh.
 <stow packages>/     niri, dms, mango, portals, environment, systemd-user,
-                     desktop-tools, scripts
+                     scripts
 ```
 
 Provenance: environment packages + installer imported from

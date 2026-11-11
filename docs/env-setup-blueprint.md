@@ -95,7 +95,6 @@ Real cruft found, all small and listed in §5.
 |---|---|---|
 | **Yours (gitted ✓)** | `dms-dynamic-cursor`, `dms-chrome-theme` | Already on GitHub (`Lcarv20/…`), cloned in `~/Developer/Software`, **symlinked** into `~/.config/dms/plugins/` |
 | Community (registry) | `dankDesktopWeather`, `dankNotepadModule`, `dankSoftwareDepot`, `emojiPicker`, `quickCapture` | Managed by dms; pinned in `~/.config/dms/plugins.lock.json`. `dms plugins restore` reinstalls from the lockfile — **one command, nothing lost** |
-| Community (external) | `dms-cpufreq` (MAHcodes — not in dms registry) | Cloned to `~/Developer/Software`, symlinked like your own |
 | Bundled with env-linux | `simple-calc`, `web-search` | Files inside the `dms` stow package → land via stage 40 |
 
 **Gap:** no installer stage consumes `plugins.lock.json` or clones your repos —
@@ -166,9 +165,7 @@ references resolve; own software after services (needs Chrome + Go).
    `git pull --ff-only` if it does), then symlink into
    `~/.config/dms/plugins/<name>`. Symlinks, not copies — matches the live
    machine, keeps your dev loop (`git -C ~/Developer/Software/dms-… && it's live`).
-3. **External community (`dms-cpufreq`):** same clone+symlink path, listed in
-   `manifest/plugins.txt` with a comment marking it third-party.
-4. **Bundled three:** nothing to do — arrive with stage 40 stow.
+3. **Bundled two (`simple-calc`, `web-search`):** nothing to do — arrive with stage 40 stow.
 
 ### 4.3 Assets v2
 

@@ -1,117 +1,37 @@
 {
-  "dankStickerSearch": {
-    "enabled": true
-  },
-  "dankLauncherKeys": {
-    "enabled": true
-  },
   "dankDesktopWeather": {
     "enabled": true
   },
-  "swwwSync": {
-    "enabled": false
-  },
-  "simpleCalc": {
+  "dankNotepadModule": {
     "enabled": true
   },
-  "localWebSearch": {
+  "dankSoftwareDepot": {
+    "enabled": true,
+    "checkDurationSecs": 10,
+    "hideWhenUpToDate": true,
+    "launcherPromptDone": true
+  },
+  "dmsChromeTheme": {
     "enabled": true
   },
   "dmsDynamicCursor": {
     "enabled": true,
     "invertSets": false
   },
-  "emojiLauncher": {
-    "enabled": true
-  },
-  "dankSoftwareDepot": {
+  "emojiPicker": {
     "enabled": true,
-    "updatesSnapshot": {
-      "ts": 1794366643,
-      "packages": []
-    },
-    "checkDurationSecs": 10,
-    "hideWhenUpToDate": true,
-    "launcherPromptDone": true,
-    "pendingShellRunLog": {},
-    "lastRunFailures": {},
-    "runHistory": [
-      {
-        "seconds": 38,
-        "items": 29
-      },
-      {
-        "seconds": 55,
-        "items": 23
-      },
-      {
-        "seconds": 1,
-        "items": 2
-      },
-      {
-        "seconds": 34,
-        "items": 35
-      },
-      {
-        "seconds": 212,
-        "items": 24
-      }
-    ],
-    "lastUpdateUnix": 1794351583,
-    "justUpdated": {
-      "plugin/dankDesktopWeather": {
-        "to": "",
-        "at": 1794329499021
-      },
-      "plugin/dankNotepadModule": {
-        "to": "",
-        "at": 1794329499021
-      },
-      "plugin/emojiPicker": {
-        "to": "",
-        "at": 1794351585177
-      },
-      "plugin/quickCapture": {
-        "to": "",
-        "at": 1794351585177
-      }
-    },
-    "selfUpdateNotifiedVersion": "1.8.4",
-    "rebootFlag": {
-      "bootId": "94cd75cf-b0c9-4422-a4cd-84cc8fa5e710",
-      "recommended": true
-    }
+    "defaultAction": "paste",
+    "defaultCategory": "recent"
+  },
+  "localWebSearch": {
+    "enabled": true
   },
   "quickCapture": {
     "enabled": true,
     "editQuality": "450000",
     "modalScaleToContent": true
   },
-  "dankNotepadModule": {
-    "enabled": true
-  },
-  "screenCaptureToolbar": {
-    "enabled": true,
-    "stdout": false,
-    "captureMode": "monitor",
-    "mediaMode": "photo",
-    "isVideoMode": false,
-    "saveToDisk": false
-  },
-  "virtManager": {
-    "enabled": true
-  },
-  "emojiPicker": {
-    "enabled": true,
-    "defaultAction": "paste",
-    "defaultCategory": "recent"
-  },
-  "cpuFreq": {
-    "enabled": true,
-    "refreshInterval": "2000",
-    "barSeparator": "dot"
-  },
-  "dmsChromeTheme": {
+  "simpleCalc": {
     "enabled": true
   }
 }

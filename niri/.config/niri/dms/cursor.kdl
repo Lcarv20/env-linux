@@ -4,5 +4,6 @@
 // ! PLACE YOUR CUSTOM CONFIGURATION ELSEWHERE !
 
 cursor {
+    xcursor-theme "Dux-Dynamic-B"
     xcursor-size 32
 }
