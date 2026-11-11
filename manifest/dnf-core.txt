@@ -35,6 +35,7 @@ xdg-desktop-portal-gnome
 xdg-user-dirs
 xdg-utils
 polkit
+gnome-keyring-pam
 
 # --- Hardware / system services ---
 NetworkManager
